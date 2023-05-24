@@ -9,6 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CookBook">
+        <activity android:name=".ui.authentication.RegisterActivity"
+            android:exported="true" />
+        <activity android:name=".ui.authentication.LoginActivity"
+            android:exported="true" />
         <activity android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

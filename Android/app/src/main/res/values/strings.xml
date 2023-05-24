@@ -3,6 +3,21 @@
     <!-- to toggle the open close button of the navigation drawer -->
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
+    <string name="login_title">Welcome Back!</string>
+    <string name="registration_title">Welcome to CookBook!</string>
+    <string name="username">Username</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="or">or</string>
+    <string name="continue_as_guest">Continue as Guest</string>
+    <string name="login_failed">Login Failed</string>
+    <string name="registration_failed">Registration Failed</string>
+    <string name="changed_your_mind">Changed your mind?</string>
+    <string name="successfully_logged_out">Successfully logged out. You can proceed using the application as guest.</string>
     <string name="people_like">%1$d people like this</string>
     <string name="recipe_title">Recipe Title</string>
     <string name="ingredients">Ingredients:</string>
