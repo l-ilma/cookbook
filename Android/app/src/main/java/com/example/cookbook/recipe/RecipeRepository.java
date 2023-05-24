@@ -2,19 +2,15 @@ package com.example.cookbook.recipe;
 
 import com.example.cookbook.models.Recipe;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class RecipeRepository {
     private static RecipeRepository recipeRepository;
-    private List<Recipe> allRecipes;
-    private List<Recipe> favourites;
-    private List<Recipe> myRecipes;
+    private List<Recipe> recipes;
 
     private RecipeRepository(){
-        favourites = new ArrayList<>();
-        myRecipes = new ArrayList<>();
-        allRecipes = RecipeLoader.load();
+        recipes = RecipeLoader.load();
     }
 
     public static RecipeRepository getInstance(){
@@ -24,21 +20,20 @@ public class RecipeRepository {
         return recipeRepository;
     }
 
-    public void addFavorites(Recipe recipe) {
-        favourites.add(recipe);
+    public List<Recipe> getRecipes() {
+        return recipes;
     }
 
-    public void removeFavorites(Recipe recipe){
-        favourites.remove(recipe);
+    public List<Recipe> getFavourites() {
+        return recipes.stream().filter(x -> x.liked).collect(Collectors.toList());
     }
 
-    public void addMyRecipe(Recipe recipe){
-        myRecipes.add(recipe);
-        allRecipes.add(recipe);
+    public List<Recipe> getMyRecipes() {
+        return recipes.stream().filter(x -> x.my).collect(Collectors.toList());
     }
 
     public void deleteRecipe(Recipe recipe){
-        myRecipes.remove(recipe);
+        recipes.remove(recipe);
     }
 
 

@@ -12,6 +12,8 @@ public class Recipe implements Serializable {
     public int likes;
     public List<Ingredient> ingredients;
     public List<Comment> comments;
+    public boolean liked;
+    public boolean my;
 
     public Recipe(int id, byte[] image, String instructions, String name, int likes, List<Ingredient> ingredients) {
         this.id = id;
@@ -21,5 +23,7 @@ public class Recipe implements Serializable {
         this.likes = likes;
         this.ingredients = ingredients;
         this.comments = new ArrayList<Comment>();
+        this.liked = false;
+        this.my = false;
     }
 }

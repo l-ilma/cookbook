@@ -51,16 +51,20 @@ public class RecipeArrayAdapter extends BaseAdapter {
 
         ImageButton likeBtn = convertView.findViewById(R.id.likeButton);
 
+        if(getItem(position).liked){
+            likeBtn.setBackground(ContextCompat.getDrawable(context,R.drawable.like_filled_24));
+        }
+
         View.OnClickListener likeClickListener = v -> {
             if (v.getBackground().getConstantState().equals(
                     ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
             ) {
                 v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-                RecipeRepository.getInstance().addFavorites(getItem(position));
+                RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = true;
 
             } else {
                 v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-                RecipeRepository.getInstance().removeFavorites(getItem(position));
+                RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = false;
             }
 
         };

@@ -9,7 +9,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -22,9 +21,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.example.cookbook.models.Recipe;
 import com.example.cookbook.recipe.RecipeActivity;
 import com.example.cookbook.recipe.RecipeLoader;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.example.cookbook.recipe.RecipeRepository;
+import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,6 +61,18 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(this, R.string.successfully_logged_out, Toast.LENGTH_SHORT).show()
                     );
                 });
+            } else if(menuItem.getItemId() == R.id.nav_favourites) {
+                ListView favReceipeList = findViewById(R.id.dishList);
+                favReceipeList.setAdapter(new RecipeArrayAdapter(this,
+                        RecipeRepository.getInstance().getFavourites()));
+            } else if(menuItem.getItemId() == R.id.nav_home) {
+                ListView receipeList = findViewById(R.id.dishList);
+                receipeList.setAdapter(new RecipeArrayAdapter(this,
+                        RecipeRepository.getInstance().getRecipes()));
+            } else if(menuItem.getItemId() == R.id.nav_my_recipes) {
+                ListView myReceipeList = findViewById(R.id.dishList);
+                myReceipeList.setAdapter(new RecipeArrayAdapter(this,
+                        RecipeRepository.getInstance().getMyRecipes()));
             }
 
             drawerLayout.closeDrawer(GravityCompat.START);
