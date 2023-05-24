@@ -24,7 +24,6 @@ import com.example.cookbook.recipe.RecipeLoader;
 
 import java.text.ParseException;
 import com.example.cookbook.recipe.RecipeRepository;
-import com.google.android.material.navigation.NavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -51,35 +50,7 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigation_view);
 
         doLoggedInUserLookup();
-        navigationView.setNavigationItemSelectedListener(menuItem -> {
-            if (menuItem.getItemId() == R.id.nav_login) {
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(intent);
-            } else if (menuItem.getItemId() == R.id.nav_logout) {
-                AsyncTask.execute(() -> {
-                    new UserRepository(getApplicationContext()).logout();
-                    StateManager.setLoggedInUser(null);
-                    this.runOnUiThread(() ->
-                            Toast.makeText(this, R.string.successfully_logged_out, Toast.LENGTH_SHORT).show()
-                    );
-                });
-            } else if(menuItem.getItemId() == R.id.nav_favourites) {
-                ListView favReceipeList = findViewById(R.id.dishList);
-                favReceipeList.setAdapter(new RecipeArrayAdapter(this,
-                        RecipeRepository.getInstance().getFavourites()));
-            } else if(menuItem.getItemId() == R.id.nav_home) {
-                ListView receipeList = findViewById(R.id.dishList);
-                receipeList.setAdapter(new RecipeArrayAdapter(this,
-                        RecipeRepository.getInstance().getRecipes()));
-            } else if(menuItem.getItemId() == R.id.nav_my_recipes) {
-                ListView myReceipeList = findViewById(R.id.dishList);
-                myReceipeList.setAdapter(new RecipeArrayAdapter(this,
-                        RecipeRepository.getInstance().getMyRecipes()));
-            }
-
-            drawerLayout.closeDrawer(GravityCompat.START);
-            return false;
-        });
+        setupNavigationViewItemSelectedListener();
 
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -121,5 +92,40 @@ public class MainActivity extends AppCompatActivity {
 
         login.setVisible(user == null);
         logout.setVisible(user != null);
+    }
+
+    private void setupNavigationViewItemSelectedListener() {
+        navigationView.setNavigationItemSelectedListener(menuItem -> {
+            try {
+                if (menuItem.getItemId() == R.id.nav_login) {
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(intent);
+                } else if (menuItem.getItemId() == R.id.nav_logout) {
+                    AsyncTask.execute(() -> {
+                        new UserRepository(getApplicationContext()).logout();
+                        StateManager.setLoggedInUser(null);
+                        this.runOnUiThread(() ->
+                                Toast.makeText(this, R.string.successfully_logged_out, Toast.LENGTH_SHORT).show()
+                        );
+                    });
+                } else if(menuItem.getItemId() == R.id.nav_favourites) {
+                    ListView favReceipeList = findViewById(R.id.dishList);
+                    favReceipeList.setAdapter(new RecipeArrayAdapter(this,
+                            RecipeRepository.getInstance().getFavourites()));
+                } else if(menuItem.getItemId() == R.id.nav_home) {
+                    ListView receipeList = findViewById(R.id.dishList);
+                    receipeList.setAdapter(new RecipeArrayAdapter(this,
+                            RecipeRepository.getInstance().getRecipes()));
+                } else if(menuItem.getItemId() == R.id.nav_my_recipes) {
+                    ListView myReceipeList = findViewById(R.id.dishList);
+                    myReceipeList.setAdapter(new RecipeArrayAdapter(this,
+                            RecipeRepository.getInstance().getMyRecipes()));
+                }
+            } catch (ParseException e) {
+                System.out.println(e.getLocalizedMessage());
+            }
+            drawerLayout.closeDrawer(GravityCompat.START);
+            return false;
+        });
     }
 }
