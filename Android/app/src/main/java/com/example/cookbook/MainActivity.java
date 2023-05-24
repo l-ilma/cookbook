@@ -21,6 +21,8 @@ import com.google.android.material.navigation.NavigationView;
 import com.example.cookbook.models.Recipe;
 import com.example.cookbook.recipe.RecipeActivity;
 import com.example.cookbook.recipe.RecipeLoader;
+
+import java.text.ParseException;
 import com.example.cookbook.recipe.RecipeRepository;
 import com.google.android.material.navigation.NavigationView;
 
@@ -83,9 +85,12 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ListView recipeList = findViewById(R.id.dishList);
-        recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
-
-        StateManager.getLoggedInUser().observe(this, user -> setupMenuContentVisibility());
+        try {
+            recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
+            StateManager.getLoggedInUser().observe(this, user -> setupMenuContentVisibility());
+        } catch (ParseException e) {
+            System.out.println(e.getLocalizedMessage());
+        }
     }
 
     @Override

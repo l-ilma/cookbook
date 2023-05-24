@@ -1,7 +1,9 @@
 package com.example.cookbook.recipe;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -11,16 +13,16 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cookbook.R;
+import com.example.cookbook.models.Comment;
 import com.example.cookbook.models.Ingredient;
 import com.example.cookbook.models.Recipe;
 
-import java.util.Arrays;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class RecipeActivity extends AppCompatActivity {
-    private final List<String> ingredients = Arrays.asList("200g risotto rice", "2 garlic cloves",
-            "8 spring onions", "25g butter", "2 tsp ground cumin", "1 tbsp olive oil", "1 small pumpkin", "50g grated parmesan ");
-
+   private Recipe recipe;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +33,7 @@ public class RecipeActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(recipe.name);
 
         getRecipeData();
+        getComments();
     }
 
     @Override
@@ -45,7 +48,7 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void getRecipeData() {
-        Recipe recipe = (Recipe) getIntent().getSerializableExtra("recipe");
+        recipe = (Recipe) getIntent().getSerializableExtra("recipe");
 
         ImageView recipeImageView = findViewById(R.id.recipeImage);
         recipeImageView.setImageResource(R.drawable.dish_image);
@@ -53,12 +56,36 @@ public class RecipeActivity extends AppCompatActivity {
         LinearLayout linearLayout = findViewById(R.id.ingredientsList);
         for (Ingredient ingredient: recipe.ingredients) {
             TextView ingredientView = new TextView(this);
-            ingredientView.setText("- " + ingredient.quantity + " " + ingredient.measure + " of " + ingredient.name);
+            ingredientView.setText("- " + ingredient.name + ": " + ingredient.quantity + " " + ingredient.measure);
             ingredientView.setTextSize(16);
             linearLayout.addView(ingredientView);
         }
 
         TextView instructionsVew = findViewById(R.id.instructions);
         instructionsVew.setText(recipe.instructions);
+    }
+
+    private void getComments() {
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        List<Comment> comments = recipe.comments;
+        LinearLayout linearLayout = findViewById(R.id.commentSection);
+        LayoutInflater inflater = LayoutInflater.from(this);
+
+
+        for (Comment comment: comments) {
+            View inflatedLayout= inflater.inflate(R.layout.comment_view, null);
+            linearLayout.addView(inflatedLayout);
+
+            TextView usernameView = inflatedLayout.findViewById(R.id.username);
+            usernameView.setText(comment.user);
+            TextView dateView = inflatedLayout.findViewById(R.id.date);
+            dateView.setText(df.format(comment.date));
+            TextView commentView = inflatedLayout.findViewById(R.id.comment);
+            commentView.setText(comment.comment);
+        }
+    }
+
+    public void onAddCommentClick(View v) {
+        // TODO
     }
 }

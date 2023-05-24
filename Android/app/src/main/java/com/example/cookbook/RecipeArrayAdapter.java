@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import com.example.cookbook.models.Recipe;
 import com.example.cookbook.recipe.RecipeRepository;
 
+import java.text.ParseException;
 import java.util.List;
 
 //custom adapter for mascot images
@@ -56,17 +57,20 @@ public class RecipeArrayAdapter extends BaseAdapter {
         }
 
         View.OnClickListener likeClickListener = v -> {
-            if (v.getBackground().getConstantState().equals(
-                    ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
-            ) {
-                v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-                RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = true;
+            try {
+                if (v.getBackground().getConstantState().equals(
+                        ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
+                ) {
+                    v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
+                    RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = true;
 
-            } else {
-                v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-                RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = false;
+                } else {
+                    v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
+                    RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = false;
+                }
+            } catch (ParseException e) {
+                System.out.println(e.getLocalizedMessage());
             }
-
         };
         likeBtn.setOnClickListener(likeClickListener);
 

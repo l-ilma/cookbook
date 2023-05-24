@@ -15,14 +15,14 @@ public class Recipe implements Serializable {
     public boolean liked;
     public boolean my;
 
-    public Recipe(int id, byte[] image, String instructions, String name, int likes, List<Ingredient> ingredients) {
+    public Recipe(int id, byte[] image, String instructions, String name, int likes, List<Ingredient> ingredients, List<Comment> comments) {
         this.id = id;
         this.image = image;
         this.instructions = instructions;
         this.name = name;
         this.likes = likes;
         this.ingredients = ingredients;
-        this.comments = new ArrayList<Comment>();
+        this.comments = comments;
         this.liked = false;
         this.my = false;
     }
