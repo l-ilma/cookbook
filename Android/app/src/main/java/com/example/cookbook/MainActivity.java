@@ -5,9 +5,12 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.ListView;
+
+import com.example.cookbook.recipe.RecipeActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,15 +57,20 @@ public class MainActivity extends AppCompatActivity {
         dishes.add(R.drawable.dish_image);
 
         ListView receiptList = findViewById(R.id.dishList);
-        receiptList.setAdapter(new RecipeArrayAdapter(getApplicationContext(), dishes));
+        receiptList.setAdapter(new RecipeArrayAdapter(this, dishes));
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-
         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void openRecipe(int position) {
+        Intent intent = new Intent(this, RecipeActivity.class);
+        intent.putExtra("recipePosition", position); // use ID instead
+        startActivity(intent);
     }
 }
