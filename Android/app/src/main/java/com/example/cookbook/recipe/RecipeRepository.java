@@ -20,11 +20,8 @@ public class RecipeRepository {
     public static RecipeRepository getInstance(){
         if(recipeRepository == null){
             recipeRepository = new RecipeRepository();
-            return recipeRepository;
         }
-        else{
-            return recipeRepository;
-        }
+        return recipeRepository;
     }
 
     public void addFavorites(Recipe recipe) {

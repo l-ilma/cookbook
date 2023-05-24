@@ -41,8 +41,8 @@ public class MainActivity extends AppCompatActivity {
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ListView receipeList = findViewById(R.id.dishList);
-        receipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
+        ListView recipeList = findViewById(R.id.dishList);
+        recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
     }
 
     @Override
