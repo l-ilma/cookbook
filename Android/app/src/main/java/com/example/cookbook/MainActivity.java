@@ -7,10 +7,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import com.example.cookbook.models.Recipe;
 import com.example.cookbook.recipe.RecipeActivity;
+import com.example.cookbook.recipe.RecipeLoader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,26 +41,8 @@ public class MainActivity extends AppCompatActivity {
         // to make the Navigation drawer icon always appear on the action bar
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        List<Integer> dishes = new ArrayList<>();
-
-        dishes.add(R.drawable.dish);
-        dishes.add(R.drawable.dish);
-        dishes.add(R.drawable.dish);
-        dishes.add(R.drawable.dish);
-        dishes.add(R.drawable.dish);
-        dishes.add(R.drawable.dish);
-        dishes.add(R.drawable.dish);
-
-        dishes.add(R.drawable.dish_image);
-        dishes.add(R.drawable.dish_image);
-        dishes.add(R.drawable.dish_image);
-        dishes.add(R.drawable.dish_image);
-        dishes.add(R.drawable.dish_image);
-        dishes.add(R.drawable.dish_image);
-        dishes.add(R.drawable.dish_image);
-
-        ListView receiptList = findViewById(R.id.dishList);
-        receiptList.setAdapter(new RecipeArrayAdapter(this, dishes));
+        ListView receipeList = findViewById(R.id.dishList);
+        receipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
     }
 
     @Override
@@ -68,9 +53,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void openRecipe(int position) {
+    public void openRecipe(Recipe recipe) {
         Intent intent = new Intent(this, RecipeActivity.class);
-        intent.putExtra("recipePosition", position); // use ID instead
+        intent.putExtra("recipe", recipe); // use ID instead
         startActivity(intent);
     }
 }
