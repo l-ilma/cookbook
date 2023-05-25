@@ -4,17 +4,15 @@ import com.example.cookbook.models.Comment;
 import com.example.cookbook.models.Recipe;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RecipeRepository {
     private static RecipeRepository recipeRepository;
-    private Map<Integer, Recipe> recipes;
+    private static Map<Integer, Recipe> recipes;
 
     private RecipeRepository() throws ParseException {
         recipes = RecipeLoader.load();
@@ -52,6 +50,6 @@ public class RecipeRepository {
     }
 
     public void uploadRecipeWithComment(int id, Comment comment) {
-        recipes.get(id).comments.add(comment);
+        Objects.requireNonNull(recipes.get(id)).comments.add(comment);
     }
 }
