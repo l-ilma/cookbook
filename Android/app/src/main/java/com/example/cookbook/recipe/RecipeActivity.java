@@ -1,9 +1,12 @@
 package com.example.cookbook.recipe;
 
+import android.content.Context;
+import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -115,6 +118,10 @@ public class RecipeActivity extends AppCompatActivity {
         dateView.setText(df.format(comment.date));
         TextView commentView = inflatedLayout.findViewById(R.id.comment);
         commentView.setText(comment.comment);
+
+        // hide keyboard
+        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        manager.hideSoftInputFromWindow(commentView.getWindowToken(), 0);
     }
 
     private void setOnCommentPostClick(View view, RelativeLayout commentLayout,
