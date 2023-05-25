@@ -120,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
                     ListView myReceipeList = findViewById(R.id.dishList);
                     myReceipeList.setAdapter(new RecipeArrayAdapter(this,
                             RecipeRepository.getInstance().getMyRecipes()));
+                } else {
+                    Toast.makeText(this, "Functionality not yet implemented!", Toast.LENGTH_SHORT).show();
                 }
             } catch (ParseException e) {
                 System.out.println(e.getLocalizedMessage());
