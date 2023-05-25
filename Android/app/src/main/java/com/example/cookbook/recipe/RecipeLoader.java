@@ -12,10 +12,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class RecipeLoader {
+    private static List<Recipe> recipes = new ArrayList<>();
+
     public static List<Recipe> load() throws ParseException {
-        List<Recipe> recipeList = new ArrayList<>();
         List<Comment> comments = new ArrayList<>();
 
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -39,7 +41,7 @@ public class RecipeLoader {
                 "5. Bake for 10-12 minutes or until golden brown.";
 
         Recipe recipe1 = new Recipe(1, R.drawable.chocolate_chip_cookies, instructions1, "Chocolate Chip Cookies", 100, ingredients1, comments);
-        recipeList.add(recipe1);
+        recipes.add(recipe1);
 
 // Recipe 2
         Ingredient ingredient3 = new Ingredient("Spaghetti", 8, "ounces");
@@ -54,7 +56,7 @@ public class RecipeLoader {
                 "5. Serve hot and garnish with grated cheese.";
 
         Recipe recipe2 = new Recipe(2, R.drawable.spaghetti_meatballs, instructions2, "Spaghetti and Meatballs", 75, ingredients2, comments);
-        recipeList.add(recipe2);
+        recipes.add(recipe2);
 
 // Recipe 3
         Ingredient ingredient5 = new Ingredient("Cucumber", 2, "medium-sized");
@@ -68,7 +70,7 @@ public class RecipeLoader {
                 "5. Toss well to coat the vegetables. Refrigerate for 1 hour before serving.";
 
         Recipe recipe3 = new Recipe(3, R.drawable.cucumber_salad, instructions3, "Cucumber Salad", 50, ingredients3, comments);
-        recipeList.add(recipe3);
+        recipes.add(recipe3);
 
 // Recipe 4
         Ingredient ingredient7 = new Ingredient("Pizza Dough", 1, "ball");
@@ -82,7 +84,7 @@ public class RecipeLoader {
                 "5. Bake the pizza in the oven for the recommended time or until the crust is golden brown.";
 
         Recipe recipe4 = new Recipe(4, R.drawable.pizza, instructions4, "Homemade Pizza", 120, ingredients4, comments);
-        recipeList.add(recipe4);
+        recipes.add(recipe4);
 
 // Recipe 5
         Ingredient ingredient9 = new Ingredient("Flour", 1, "cup");
@@ -96,8 +98,13 @@ public class RecipeLoader {
                 "5. Flip the pancake and cook for another minute or until golden brown.";
 
         Recipe recipe5 = new Recipe(5, R.drawable.pizza_pepperoni, instructions5, "Homemade Pepperoni Pizza", 120, ingredients5, comments);
-        recipeList.add(recipe5);
+        recipes.add(recipe5);
 
-        return recipeList;
+        return recipes;
+    }
+
+    public static void uploadRecipeWithComment(int id, Comment comment) {
+        Optional<Recipe> relevantRecipe = recipes.stream().filter(recipe -> recipe.id == id).findFirst();
+        relevantRecipe.ifPresent(recipe -> recipe.comments.add(comment));
     }
 }

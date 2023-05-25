@@ -39,7 +39,7 @@ public class RecipeActivity extends AppCompatActivity {
         inflater = LayoutInflater.from(this);
         loggedInUser = StateManager.getLoggedInUser().getValue();
 
-        Recipe recipe = (Recipe) getIntent().getSerializableExtra("recipe");
+        recipe = (Recipe) getIntent().getSerializableExtra("recipe");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back button
         getSupportActionBar().setTitle(recipe.name);
 
@@ -129,6 +129,7 @@ public class RecipeActivity extends AppCompatActivity {
             LinearLayout linearLayout = findViewById(R.id.commentSection);
             addCommentView(linearLayout, newComment);
             addCommentBtn.setVisibility(View.VISIBLE);
+            RecipeLoader.uploadRecipeWithComment(recipe.id, newComment);
         });
     }
 }
