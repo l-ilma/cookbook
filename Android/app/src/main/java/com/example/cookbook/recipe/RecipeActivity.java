@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -20,14 +21,18 @@ import com.example.cookbook.models.Recipe;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class RecipeActivity extends AppCompatActivity {
    private Recipe recipe;
+   private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+    LayoutInflater inflater;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
+        inflater = LayoutInflater.from(this);
 
         Recipe recipe = (Recipe) getIntent().getSerializableExtra("recipe");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back button
@@ -67,22 +72,11 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void getComments() {
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
         List<Comment> comments = recipe.comments;
         LinearLayout linearLayout = findViewById(R.id.commentSection);
-        LayoutInflater inflater = LayoutInflater.from(this);
-
 
         for (Comment comment: comments) {
-            View inflatedLayout= inflater.inflate(R.layout.comment_view, null);
-            linearLayout.addView(inflatedLayout);
-
-            TextView usernameView = inflatedLayout.findViewById(R.id.username);
-            usernameView.setText(comment.user);
-            TextView dateView = inflatedLayout.findViewById(R.id.date);
-            dateView.setText(df.format(comment.date));
-            TextView commentView = inflatedLayout.findViewById(R.id.comment);
-            commentView.setText(comment.comment);
+            addCommentView(linearLayout, comment);
         }
     }
 
@@ -90,8 +84,39 @@ public class RecipeActivity extends AppCompatActivity {
         v.setVisibility(View.GONE);
 
         RelativeLayout commentLayout = findViewById(R.id.commentLayout);
-        RelativeLayout commentTextView = commentLayout.findViewById(R.id.commentLayout);
+        EditText commentTextView = commentLayout.findViewById(R.id.commentText);
         commentLayout.setVisibility(View.VISIBLE);
+        commentTextView.setText("");
         commentTextView.requestFocus();
+        ImageView postCommentBtn = commentLayout.findViewById(R.id.postCommentBtn);
+        setOnCommentPostClick(postCommentBtn, commentLayout, commentTextView, v);
+    }
+
+    private void addCommentView(LinearLayout parent, Comment comment) {
+        View inflatedLayout= inflater.inflate(R.layout.comment_view, null);
+        parent.addView(inflatedLayout);
+
+        TextView usernameView = inflatedLayout.findViewById(R.id.username);
+        usernameView.setText(comment.user);
+        TextView dateView = inflatedLayout.findViewById(R.id.date);
+        dateView.setText(df.format(comment.date));
+        TextView commentView = inflatedLayout.findViewById(R.id.comment);
+        commentView.setText(comment.comment);
+    }
+
+    private void setOnCommentPostClick(View view, RelativeLayout commentLayout,
+                                       EditText commentTextView, View addCommentBtn) {
+        view.setOnClickListener(v -> {
+            String comment = commentTextView.getText().toString();
+            Date date = new Date();
+            String user = "Test"; // TODO: get user
+            Comment newComment = new Comment(comment, user, date);
+
+            commentLayout.setVisibility(View.GONE);
+
+            LinearLayout linearLayout = findViewById(R.id.commentSection);
+            addCommentView(linearLayout, newComment);
+            addCommentBtn.setVisibility(View.VISIBLE);
+        });
     }
 }
