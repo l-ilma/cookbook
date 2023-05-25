@@ -63,8 +63,9 @@
             android:orientation="vertical" />
 
         <Button
-            android:id="@+id/commentButton"
+            android:id="@+id/addCommentButton"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:onClick="onAddCommentClick"
             android:text="@string/add_comment" />

@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cookbook.R;
+import com.example.cookbook.StateManager;
+import com.example.cookbook.entity.User;
 import com.example.cookbook.models.Comment;
 import com.example.cookbook.models.Ingredient;
 import com.example.cookbook.models.Recipe;
@@ -27,12 +30,14 @@ import java.util.List;
 public class RecipeActivity extends AppCompatActivity {
    private Recipe recipe;
    private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+   private User loggedInUser = null;
     LayoutInflater inflater;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
         inflater = LayoutInflater.from(this);
+        loggedInUser = StateManager.getLoggedInUser().getValue();
 
         Recipe recipe = (Recipe) getIntent().getSerializableExtra("recipe");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back button
@@ -40,6 +45,13 @@ public class RecipeActivity extends AppCompatActivity {
 
         getRecipeData();
         getComments();
+
+        Button addCommentBtn = findViewById(R.id.addCommentButton);
+        if (loggedInUser != null) {
+            addCommentBtn.setVisibility(View.VISIBLE);
+        } else {
+            addCommentBtn.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -109,7 +121,7 @@ public class RecipeActivity extends AppCompatActivity {
         view.setOnClickListener(v -> {
             String comment = commentTextView.getText().toString();
             Date date = new Date();
-            String user = "Test"; // TODO: get user
+            String user = loggedInUser.username;
             Comment newComment = new Comment(comment, user, date);
 
             commentLayout.setVisibility(View.GONE);
