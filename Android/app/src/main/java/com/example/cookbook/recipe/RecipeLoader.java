@@ -19,7 +19,9 @@ import java.util.Optional;
 public class RecipeLoader {
     private static List<Recipe> recipes = new ArrayList<>();
     public static Map<Integer, Recipe> load() throws ParseException{
-
+        if (recipes.size() != 0) {
+            return recipes;
+        }
         Map<Integer, Recipe> recipeMap = new HashMap<>();
         List<Recipe> recipeList = new ArrayList<>();
         List<Comment> comments = new ArrayList<>();

@@ -28,9 +28,9 @@
         android:drawableStart="@drawable/baseline_person_24"
         android:drawableTint="@color/teal_700"
         android:hint="@string/username"
-        android:inputType="textEmailAddress"
+        android:inputType="text"
         android:drawablePadding="8dp"
-        android:autofillHints="emailAddress"
+        android:autofillHints="username"
         android:paddingVertical="16dp"
         />
 
