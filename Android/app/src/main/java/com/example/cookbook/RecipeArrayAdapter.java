@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat;
 import com.example.cookbook.models.Recipe;
 import com.example.cookbook.recipe.RecipeRepository;
 
+import java.text.ParseException;
 import java.util.List;
 
 //custom adapter for mascot images
@@ -51,38 +52,42 @@ public class RecipeArrayAdapter extends BaseAdapter {
 
         ImageButton likeBtn = convertView.findViewById(R.id.likeButton);
 
-        if(getItem(position).liked){
+        Recipe item = getItem(position);
+        if(item.liked){
             likeBtn.setBackground(ContextCompat.getDrawable(context,R.drawable.like_filled_24));
         }
 
         View.OnClickListener likeClickListener = v -> {
-            if (v.getBackground().getConstantState().equals(
-                    ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
-            ) {
-                v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-                RecipeRepository.getInstance().likeRecipe(getItem(position).id);
+            try {
+                if (v.getBackground().getConstantState().equals(
+                        ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
+                ) {
+                    v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
+                    RecipeRepository.getInstance().likeRecipe(item.id);
 
-            } else {
-                v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-                RecipeRepository.getInstance().unlikeRecipe(getItem(position).id);
+                } else {
+                    v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
+                    RecipeRepository.getInstance().unlikeRecipe(item.id);
+                }
+            } catch (ParseException e) {
+                System.out.println(e.getLocalizedMessage());
             }
-
         };
         likeBtn.setOnClickListener(likeClickListener);
 
         TextView recipeDesc = convertView.findViewById(R.id.recipeDesc);
-        recipeDesc.setText(getItem(position).instructions);
+        recipeDesc.setText(item.instructions);
 
         TextView recipeTitle = convertView.findViewById(R.id.recipeTitle);
-        recipeTitle.setText(getItem(position).name);
+        recipeTitle.setText(item.name);
 
         TextView likeCountTextView = convertView.findViewById(R.id.likeCountText);
-        likeCountTextView.setText(String.format(context.getString(R.string.people_like), 320));
+        likeCountTextView.setText(String.format(context.getString(R.string.people_like), item.likes));
 
         ImageView receiptImageView = convertView.findViewById(R.id.recipeImage);
-        receiptImageView.setImageResource(R.drawable.dish_image);
+        receiptImageView.setImageResource(item.image);
 
-        setOnRecipeClick(convertView, getItem(position));
+        setOnRecipeClick(convertView, item);
         return convertView;
     }
 

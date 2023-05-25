@@ -2,7 +2,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginVertical="10dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recipeView"
+    android:layout_marginVertical="10dp"
+    tools:context=".recipe.RecipeActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -26,6 +29,7 @@
             android:id="@+id/ingredientsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
             android:orientation="vertical" />
 
         <TextView
@@ -43,9 +47,29 @@
             android:layout_marginTop="10dp"
             android:textSize="16sp"/>
 
-        <include layout="@layout/comment_section"
-            android:layout_marginTop="10dp"
+        <TextView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/comments"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:id="@+id/commentSection"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/addCommentButton"
+            android:layout_width="match_parent"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:onClick="onAddCommentClick"
+            android:text="@string/add_comment" />
+
+       <include layout="@layout/write_comment_layout" />
     </LinearLayout>
 </ScrollView>
