@@ -18,6 +18,10 @@ public class RecipeLoader {
     private static List<Recipe> recipes = new ArrayList<>();
 
     public static List<Recipe> load() throws ParseException {
+        if (recipes.size() != 0) {
+            return recipes;
+        }
+
         List<Comment> comments = new ArrayList<>();
 
         DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
