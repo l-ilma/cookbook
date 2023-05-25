@@ -55,13 +55,15 @@ public class RecipeArrayAdapter extends BaseAdapter {
         Recipe item = getItem(position);
         if(item.liked){
             likeBtn.setBackground(ContextCompat.getDrawable(context,R.drawable.like_filled_24));
+            likeBtn.setTag(R.drawable.like_filled_24);
+        } else {
+            likeBtn.setBackground(ContextCompat.getDrawable(context,R.drawable.like_empty_24));
+            likeBtn.setTag(R.drawable.like_empty_24);
         }
 
         View.OnClickListener likeClickListener = v -> {
             try {
-                if (v.getBackground().getConstantState().equals(
-                        ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
-                ) {
+                if (v.getTag().equals(R.drawable.like_empty_24)) {
                     v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
                     RecipeRepository.getInstance().likeRecipe(item.id);
 
