@@ -20,8 +20,7 @@
             <ImageView
                 android:id="@+id/recipeImage"
                 android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:background="@drawable/dish_image" />
+                android:layout_height="150dp" />
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

@@ -52,7 +52,8 @@ public class RecipeArrayAdapter extends BaseAdapter {
 
         ImageButton likeBtn = convertView.findViewById(R.id.likeButton);
 
-        if(getItem(position).liked){
+        Recipe item = getItem(position);
+        if(item.liked){
             likeBtn.setBackground(ContextCompat.getDrawable(context,R.drawable.like_filled_24));
         }
 
@@ -62,11 +63,11 @@ public class RecipeArrayAdapter extends BaseAdapter {
                         ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
                 ) {
                     v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-                    RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = true;
+                    RecipeRepository.getInstance().getRecipes().get(item.id - 1).liked = true;
 
                 } else {
                     v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-                    RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = false;
+                    RecipeRepository.getInstance().getRecipes().get(item.id - 1).liked = false;
                 }
             } catch (ParseException e) {
                 System.out.println(e.getLocalizedMessage());
@@ -75,18 +76,18 @@ public class RecipeArrayAdapter extends BaseAdapter {
         likeBtn.setOnClickListener(likeClickListener);
 
         TextView recipeDesc = convertView.findViewById(R.id.recipeDesc);
-        recipeDesc.setText(getItem(position).instructions);
+        recipeDesc.setText(item.instructions);
 
         TextView recipeTitle = convertView.findViewById(R.id.recipeTitle);
-        recipeTitle.setText(getItem(position).name);
+        recipeTitle.setText(item.name);
 
         TextView likeCountTextView = convertView.findViewById(R.id.likeCountText);
-        likeCountTextView.setText(String.format(context.getString(R.string.people_like), 320));
+        likeCountTextView.setText(String.format(context.getString(R.string.people_like), item.likes));
 
         ImageView receiptImageView = convertView.findViewById(R.id.recipeImage);
-        receiptImageView.setImageResource(R.drawable.dish_image);
+        receiptImageView.setImageResource(item.image);
 
-        setOnRecipeClick(convertView, getItem(position));
+        setOnRecipeClick(convertView, item);
         return convertView;
     }
 

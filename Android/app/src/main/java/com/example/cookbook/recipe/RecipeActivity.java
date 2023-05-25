@@ -69,7 +69,7 @@ public class RecipeActivity extends AppCompatActivity {
         recipe = (Recipe) getIntent().getSerializableExtra("recipe");
 
         ImageView recipeImageView = findViewById(R.id.recipeImage);
-        recipeImageView.setImageResource(R.drawable.dish_image);
+        recipeImageView.setImageResource(recipe.image);
 
         LinearLayout linearLayout = findViewById(R.id.ingredientsList);
         for (Ingredient ingredient: recipe.ingredients) {

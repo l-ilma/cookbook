@@ -1,5 +1,6 @@
 package com.example.cookbook.recipe;
 
+import com.example.cookbook.R;
 import com.example.cookbook.models.Comment;
 import com.example.cookbook.models.Ingredient;
 import com.example.cookbook.models.Recipe;
@@ -37,7 +38,7 @@ public class RecipeLoader {
                 "4. Drop spoonfuls of dough onto a greased baking sheet.\n" +
                 "5. Bake for 10-12 minutes or until golden brown.";
 
-        Recipe recipe1 = new Recipe(1, null, instructions1, "Chocolate Chip Cookies", 100, ingredients1, comments);
+        Recipe recipe1 = new Recipe(1, R.drawable.chocolate_chip_cookies, instructions1, "Chocolate Chip Cookies", 100, ingredients1, comments);
         recipeList.add(recipe1);
 
 // Recipe 2
@@ -52,7 +53,7 @@ public class RecipeLoader {
                 "4. Add your favorite sauce and simmer for 5 minutes.\n" +
                 "5. Serve hot and garnish with grated cheese.";
 
-        Recipe recipe2 = new Recipe(2, null, instructions2, "Spaghetti and Meatballs", 75, ingredients2, comments);
+        Recipe recipe2 = new Recipe(2, R.drawable.spaghetti_meatballs, instructions2, "Spaghetti and Meatballs", 75, ingredients2, comments);
         recipeList.add(recipe2);
 
 // Recipe 3
@@ -66,7 +67,7 @@ public class RecipeLoader {
                 "4. Pour the dressing over the cucumber and onion mixture.\n" +
                 "5. Toss well to coat the vegetables. Refrigerate for 1 hour before serving.";
 
-        Recipe recipe3 = new Recipe(3, null, instructions3, "Cucumber Salad", 50, ingredients3, comments);
+        Recipe recipe3 = new Recipe(3, R.drawable.cucumber_salad, instructions3, "Cucumber Salad", 50, ingredients3, comments);
         recipeList.add(recipe3);
 
 // Recipe 4
@@ -80,7 +81,7 @@ public class RecipeLoader {
                 "4. Add your favorite toppings such as cheese, vegetables, and meats.\n" +
                 "5. Bake the pizza in the oven for the recommended time or until the crust is golden brown.";
 
-        Recipe recipe4 = new Recipe(4, null, instructions4, "Homemade Pizza", 120, ingredients4, comments);
+        Recipe recipe4 = new Recipe(4, R.drawable.pizza, instructions4, "Homemade Pizza", 120, ingredients4, comments);
         recipeList.add(recipe4);
 
 // Recipe 5
@@ -94,7 +95,7 @@ public class RecipeLoader {
                 "4. Cook for a few minutes until bubbles form on the surface.\n" +
                 "5. Flip the pancake and cook for another minute or until golden brown.";
 
-        Recipe recipe5 = new Recipe(5, null, instructions5, "Homemade Pizza", 120, ingredients5, comments);
+        Recipe recipe5 = new Recipe(5, R.drawable.pizza_pepperoni, instructions5, "Homemade Pepperoni Pizza", 120, ingredients5, comments);
         recipeList.add(recipe5);
 
         return recipeList;
