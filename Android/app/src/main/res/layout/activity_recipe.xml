@@ -68,5 +68,7 @@
             android:layout_height="wrap_content"
             android:onClick="onAddCommentClick"
             android:text="@string/add_comment" />
+
+       <include layout="@layout/write_comment_layout" />
     </LinearLayout>
 </ScrollView>

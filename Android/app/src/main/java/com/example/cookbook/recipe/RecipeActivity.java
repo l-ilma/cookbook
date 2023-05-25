@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -86,6 +87,11 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     public void onAddCommentClick(View v) {
-        // TODO
+        v.setVisibility(View.GONE);
+
+        RelativeLayout commentLayout = findViewById(R.id.commentLayout);
+        RelativeLayout commentTextView = commentLayout.findViewById(R.id.commentLayout);
+        commentLayout.setVisibility(View.VISIBLE);
+        commentTextView.requestFocus();
     }
 }

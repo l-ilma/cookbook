@@ -7,6 +7,7 @@
     <string name="registration_title">Welcome to CookBook!</string>
     <string name="username">Username</string>
     <string name="email">Email</string>
+    <string name="tell_opinion">Tell us what you think!</string>
     <string name="password">Password</string>
     <string name="login">Login</string>
     <string name="register">Register</string>
