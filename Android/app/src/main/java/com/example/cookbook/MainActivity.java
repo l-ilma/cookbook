@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         ListView recipeList = findViewById(R.id.dishList);
-        recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
+        recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeRepository.getInstance().getRecipes()));
 
         StateManager.getLoggedInUser().observe(this, user -> setupMenuContentVisibility());
     }

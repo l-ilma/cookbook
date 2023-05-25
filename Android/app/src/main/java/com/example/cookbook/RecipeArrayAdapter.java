@@ -60,11 +60,11 @@ public class RecipeArrayAdapter extends BaseAdapter {
                     ContextCompat.getDrawable(context, R.drawable.like_empty_24).getConstantState())
             ) {
                 v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-                RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = true;
+                RecipeRepository.getInstance().likeRecipe(getItem(position).id);
 
             } else {
                 v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-                RecipeRepository.getInstance().getRecipes().get(getItem(position).id - 1).liked = false;
+                RecipeRepository.getInstance().unlikeRecipe(getItem(position).id);
             }
 
         };
