@@ -23,6 +23,7 @@ import com.example.cookbook.models.Ingredient;
 import com.example.cookbook.models.Recipe;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -129,7 +130,11 @@ public class RecipeActivity extends AppCompatActivity {
             LinearLayout linearLayout = findViewById(R.id.commentSection);
             addCommentView(linearLayout, newComment);
             addCommentBtn.setVisibility(View.VISIBLE);
-            RecipeLoader.uploadRecipeWithComment(recipe.id, newComment);
+            try {
+                RecipeRepository.getInstance().uploadRecipeWithComment(recipe.id, newComment);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         });
     }
 }

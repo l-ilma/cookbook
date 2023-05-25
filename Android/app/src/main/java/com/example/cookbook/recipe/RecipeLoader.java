@@ -17,11 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class RecipeLoader {
-    private static List<Recipe> recipes = new ArrayList<>();
+    private static Map<Integer, Recipe> recipeMap = new HashMap<>();
     public static Map<Integer, Recipe> load() throws ParseException{
-        if (recipes.size() != 0) {
-            return recipes;
-        }
         Map<Integer, Recipe> recipeMap = new HashMap<>();
         List<Recipe> recipeList = new ArrayList<>();
         List<Comment> comments = new ArrayList<>();
@@ -47,7 +44,6 @@ public class RecipeLoader {
 
         Recipe recipe1 = new Recipe(1, R.drawable.chocolate_chip_cookies, instructions1, "Chocolate Chip Cookies",
                 100, ingredients1, comments, false,false);
-        recipes.add(recipe1);
         recipeMap.put(1, recipe1);
 
 // Recipe 2
@@ -64,7 +60,6 @@ public class RecipeLoader {
 
         Recipe recipe2 = new Recipe(2, R.drawable.spaghetti_meatballs, instructions2, "Spaghetti and Meatballs",
                 75, ingredients2, comments, false, true);
-        recipes.add(recipe2);
         recipeMap.put(2, recipe2);
 
 // Recipe 3
@@ -80,7 +75,6 @@ public class RecipeLoader {
 
         Recipe recipe3 = new Recipe(3, R.drawable.cucumber_salad, instructions3, "Cucumber Salad",
                 50, ingredients3, comments, true, false);
-        recipes.add(recipe3);
         recipeMap.put(3, recipe3);
 
 // Recipe 4
@@ -96,7 +90,6 @@ public class RecipeLoader {
 
         Recipe recipe4 = new Recipe(4, R.drawable.pizza, instructions4, "Homemade Pizza",
                 120, ingredients4, comments, true, true);
-        recipes.add(recipe4);
         recipeMap.put(4, recipe4);
 
 // Recipe 5
@@ -112,14 +105,10 @@ public class RecipeLoader {
 
         Recipe recipe5 = new Recipe(5, R.drawable.pizza_pepperoni, instructions5, "Homemade Pizza",
                 120, ingredients5, comments, false,false);
-        recipes.add(recipe5);
         recipeMap.put(5, recipe5);
 
         return recipeMap;
     }
 
-    public static void uploadRecipeWithComment(int id, Comment comment) {
-        Optional<Recipe> relevantRecipe = recipes.stream().filter(recipe -> recipe.id == id).findFirst();
-        relevantRecipe.ifPresent(recipe -> recipe.comments.add(comment));
-    }
+
 }

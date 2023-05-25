@@ -1,5 +1,6 @@
 package com.example.cookbook.recipe;
 
+import com.example.cookbook.models.Comment;
 import com.example.cookbook.models.Recipe;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class RecipeRepository {
@@ -47,5 +49,9 @@ public class RecipeRepository {
 
     public void deleteRecipe(Integer id){
         recipes.remove(id);
+    }
+
+    public void uploadRecipeWithComment(int id, Comment comment) {
+        recipes.get(id).comments.add(comment);
     }
 }
