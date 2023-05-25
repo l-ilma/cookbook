@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
         ListView recipeList = findViewById(R.id.dishList);
         try {
-            recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeLoader.load()));
+            recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeRepository.getInstance().getRecipes()));
             StateManager.getLoggedInUser().observe(this, user -> setupMenuContentVisibility());
         } catch (ParseException e) {
             System.out.println(e.getLocalizedMessage());
