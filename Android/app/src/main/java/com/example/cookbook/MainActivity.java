@@ -88,10 +88,14 @@ public class MainActivity extends AppCompatActivity {
     private void setupMenuContentVisibility() {
         MenuItem login = navigationView.getMenu().findItem(R.id.nav_login);
         MenuItem logout = navigationView.getMenu().findItem(R.id.nav_logout);
+        MenuItem myRecipes = navigationView.getMenu().findItem(R.id.nav_my_recipes);
+        MenuItem favorites = navigationView.getMenu().findItem(R.id.nav_favourites);
         User user = StateManager.getLoggedInUser().getValue();
 
         login.setVisible(user == null);
         logout.setVisible(user != null);
+        myRecipes.setVisible(user != null);
+        favorites.setVisible(user != null);
     }
 
     private void setupNavigationViewItemSelectedListener() {
@@ -109,16 +113,16 @@ public class MainActivity extends AppCompatActivity {
                         );
                     });
                 } else if(menuItem.getItemId() == R.id.nav_favourites) {
-                    ListView favReceipeList = findViewById(R.id.dishList);
-                    favReceipeList.setAdapter(new RecipeArrayAdapter(this,
+                    ListView favRecipeList = findViewById(R.id.dishList);
+                    favRecipeList.setAdapter(new RecipeArrayAdapter(this,
                             RecipeRepository.getInstance().getFavourites()));
                 } else if(menuItem.getItemId() == R.id.nav_home) {
-                    ListView receipeList = findViewById(R.id.dishList);
-                    receipeList.setAdapter(new RecipeArrayAdapter(this,
+                    ListView recipeList = findViewById(R.id.dishList);
+                    recipeList.setAdapter(new RecipeArrayAdapter(this,
                             RecipeRepository.getInstance().getRecipes()));
                 } else if(menuItem.getItemId() == R.id.nav_my_recipes) {
-                    ListView myReceipeList = findViewById(R.id.dishList);
-                    myReceipeList.setAdapter(new RecipeArrayAdapter(this,
+                    ListView myRecipeList = findViewById(R.id.dishList);
+                    myRecipeList.setAdapter(new RecipeArrayAdapter(this,
                             RecipeRepository.getInstance().getMyRecipes()));
                 } else {
                     Toast.makeText(this, "Functionality not yet implemented!", Toast.LENGTH_SHORT).show();
