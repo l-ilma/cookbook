@@ -1,7 +1,9 @@
 package com.example.cookbook.recipe;
 
 import android.content.Context;
-import android.inputmethodservice.Keyboard;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,25 +19,31 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 
 import com.example.cookbook.R;
-import com.example.cookbook.StateManager;
+import com.example.cookbook.entity.Comment;
+import com.example.cookbook.entity.Ingredient;
 import com.example.cookbook.entity.User;
-import com.example.cookbook.models.Comment;
-import com.example.cookbook.models.Ingredient;
-import com.example.cookbook.models.Recipe;
+import com.example.cookbook.models.CompositeRecipe;
+import com.example.cookbook.repository.CommentRepository;
+import com.example.cookbook.repository.RecipeRepository;
+import com.example.cookbook.repository.UserRepository;
+import com.example.cookbook.utils.Constants;
+import com.example.cookbook.utils.ImageUtils;
+import com.example.cookbook.utils.StateManager;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class RecipeActivity extends AppCompatActivity {
-   private Recipe recipe;
-   private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-   private User loggedInUser = null;
+
     LayoutInflater inflater;
+
+    private LiveData<CompositeRecipe> compositeRecipe;
+
+    private User loggedInUser;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,40 +51,44 @@ public class RecipeActivity extends AppCompatActivity {
         inflater = LayoutInflater.from(this);
         loggedInUser = StateManager.getLoggedInUser().getValue();
 
-        recipe = (Recipe) getIntent().getSerializableExtra("recipe");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back button
-        getSupportActionBar().setTitle(recipe.name);
-
-        getRecipeData();
-        getComments();
+        loadCompositeRecipe();
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true); // back button
 
         Button addCommentBtn = findViewById(R.id.addCommentButton);
-        if (loggedInUser != null) {
-            addCommentBtn.setVisibility(View.VISIBLE);
-        } else {
-            addCommentBtn.setVisibility(View.GONE);
-        }
+        addCommentBtn.setVisibility(loggedInUser != null ? View.VISIBLE : View.GONE);
+
+        compositeRecipe.observe(this, recipeData -> {
+            if (recipeData == null) return;
+            renderRecipeData();
+            renderComments();
+            getSupportActionBar().setTitle(recipeData.recipe.name);
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
-    private void getRecipeData() {
-        recipe = (Recipe) getIntent().getSerializableExtra("recipe");
+    private void renderRecipeData() {
 
         ImageView recipeImageView = findViewById(R.id.recipeImage);
-        recipeImageView.setImageResource(recipe.image);
+        if (compositeRecipe.getValue().recipe.imagePath == null) {
+            recipeImageView.setImageResource(R.drawable.baseline_image_24);
+        } else {
+            Drawable image = new BitmapDrawable(ImageUtils.loadFile(compositeRecipe.getValue().recipe.imagePath));
+            recipeImageView.setImageDrawable(image);
+        }
+
 
         LinearLayout linearLayout = findViewById(R.id.ingredientsList);
-        for (Ingredient ingredient: recipe.ingredients) {
+        linearLayout.removeAllViews();
+
+        for (Ingredient ingredient : compositeRecipe.getValue().ingredients) {
             TextView ingredientView = new TextView(this);
             ingredientView.setText("- " + ingredient.name + ": " + ingredient.quantity + " " + ingredient.measure);
             ingredientView.setTextSize(16);
@@ -84,14 +96,15 @@ public class RecipeActivity extends AppCompatActivity {
         }
 
         TextView instructionsVew = findViewById(R.id.instructions);
-        instructionsVew.setText(recipe.instructions);
+        instructionsVew.setText(compositeRecipe.getValue().recipe.instructions);
     }
 
-    private void getComments() {
-        List<Comment> comments = recipe.comments;
+    private void renderComments() {
+        List<Comment> comments = compositeRecipe.getValue().comments;
         LinearLayout linearLayout = findViewById(R.id.commentSection);
+        linearLayout.removeAllViews();
 
-        for (Comment comment: comments) {
+        for (Comment comment : comments) {
             addCommentView(linearLayout, comment);
         }
     }
@@ -109,15 +122,19 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void addCommentView(LinearLayout parent, Comment comment) {
-        View inflatedLayout= inflater.inflate(R.layout.comment_view, null);
+        View inflatedLayout = inflater.inflate(R.layout.comment_view, null);
         parent.addView(inflatedLayout);
 
-        TextView usernameView = inflatedLayout.findViewById(R.id.username);
-        usernameView.setText(comment.user);
+        new UserRepository(getApplicationContext()).findById(comment.userId).observe(this, user -> {
+            TextView usernameView = inflatedLayout.findViewById(R.id.username);
+            usernameView.setText(user.username);
+        });
+
+
         TextView dateView = inflatedLayout.findViewById(R.id.date);
-        dateView.setText(df.format(comment.date));
+        dateView.setText(Constants.DATE_FORMAT.format(comment.createdAt));
         TextView commentView = inflatedLayout.findViewById(R.id.comment);
-        commentView.setText(comment.comment);
+        commentView.setText(comment.text);
 
         // hide keyboard
         InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -128,20 +145,22 @@ public class RecipeActivity extends AppCompatActivity {
                                        EditText commentTextView, View addCommentBtn) {
         view.setOnClickListener(v -> {
             String comment = commentTextView.getText().toString();
-            Date date = new Date();
-            String user = loggedInUser.username;
-            Comment newComment = new Comment(comment, user, date);
-
             commentLayout.setVisibility(View.GONE);
-
-            LinearLayout linearLayout = findViewById(R.id.commentSection);
-            addCommentView(linearLayout, newComment);
             addCommentBtn.setVisibility(View.VISIBLE);
-            try {
-                RecipeRepository.getInstance().uploadRecipeWithComment(recipe.id, newComment);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+
+            AsyncTask.execute(() -> {
+                new CommentRepository(getApplicationContext()).add(
+                        loggedInUser.id,
+                        compositeRecipe.getValue().recipe.id,
+                        comment
+                );
+            });
+
         });
+    }
+
+    private void loadCompositeRecipe() {
+        long recipeId = getIntent().getLongExtra(Constants.RECIPE_EXTRA_KEY, -1);
+        compositeRecipe = new RecipeRepository(getApplicationContext()).findById(recipeId);
     }
 }

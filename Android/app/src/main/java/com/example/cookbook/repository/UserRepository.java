@@ -2,10 +2,12 @@ package com.example.cookbook.repository;
 
 import android.content.Context;
 
+import androidx.lifecycle.LiveData;
+
 import com.example.cookbook.AppDatabase;
-import com.example.cookbook.StateManager;
 import com.example.cookbook.dao.UserDao;
 import com.example.cookbook.entity.User;
+import com.example.cookbook.utils.StateManager;
 
 import java.util.Objects;
 
@@ -14,7 +16,7 @@ public class UserRepository {
     private final UserDao userDao;
 
     public UserRepository(Context context) {
-        this.userDao = AppDatabase.getInstance(context).userDao();
+        userDao = AppDatabase.getInstance(context).userDao();
     }
 
     public User register(String username, String email, String password) throws Exception {
@@ -45,5 +47,9 @@ public class UserRepository {
 
     public User getLoggedInUser() {
         return userDao.findLoggedInUser();
+    }
+
+    public LiveData<User> findById(long id) {
+        return userDao.findById(id);
     }
 }

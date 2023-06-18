@@ -1,24 +1,16 @@
 package com.example.cookbook.entity;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.PrimaryKey;
+import androidx.room.Index;
 
-@Entity
-public class User {
-    @PrimaryKey(autoGenerate = true)
-    public int id;
-
-    @ColumnInfo(name = "username")
+@Entity(indices = {@Index("id")})
+public class User extends BaseEntity {
     public String username;
 
-    @ColumnInfo(name = "email")
     public String email;
 
-    @ColumnInfo(name = "password")
     public String password;
 
-    @ColumnInfo(name = "isLoggedIn")
     public boolean isLoggedIn;
 
     public User(String username, String email, String password, boolean isLoggedIn) {
