@@ -75,10 +75,10 @@ public class AppDatabaseSeed extends Callback {
                 1,
                 "Chocolate Chip Cookies",
                 chocolateChipCookiesInstructions,
-                ImageUtils.createFile(
+                null/*ImageUtils.createFile(
                         "chocolate_cookies-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.chocolate_chip_cookies)
-                )
+                )*/
         );
 
         ingredients.add(new Ingredient(1, "Flour", 2, "cups"));
@@ -96,10 +96,10 @@ public class AppDatabaseSeed extends Callback {
                 2,
                 "Spaghetti and Meatballs",
                 spaghettiInstructions,
-                ImageUtils.createFile(
+                null/*ImageUtils.createFile(
                         "spaghetti_meatballs-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.spaghetti_meatballs)
-                )
+                )*/
         );
 
         ingredients.add(new Ingredient(2, "Spaghetti", 8, "ounces"));
@@ -117,10 +117,10 @@ public class AppDatabaseSeed extends Callback {
                 3,
                 "Cucumber Salad",
                 cucumberSaladInstructions,
-                ImageUtils.createFile(
+                null/*ImageUtils.createFile(
                         "cucumber_salad-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.cucumber_salad)
-                )
+                )*/
 
 
         );
@@ -140,10 +140,10 @@ public class AppDatabaseSeed extends Callback {
                 4,
                 "Homemade Pizza",
                 pizzaInstructions,
-                ImageUtils.createFile(
+                null/*ImageUtils.createFile(
                         "pizza-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.pizza)
-                )
+                )*/
         );
 
         ingredients.add(new Ingredient(4, "Pizza Dough", 1, "ball"));
