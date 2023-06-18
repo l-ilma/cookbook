@@ -10,17 +10,18 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.cookbook.entity.User;
+import com.example.cookbook.recipe.ManageRecipe;
 import com.example.cookbook.repository.UserRepository;
 import com.example.cookbook.ui.authentication.LoginActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import com.example.cookbook.models.Recipe;
 import com.example.cookbook.recipe.RecipeActivity;
-import com.example.cookbook.recipe.RecipeLoader;
 
 import java.text.ParseException;
 import com.example.cookbook.recipe.RecipeRepository;
@@ -57,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         ListView recipeList = findViewById(R.id.dishList);
         try {
-            recipeList.setAdapter(new RecipeArrayAdapter(this, RecipeRepository.getInstance().getRecipes()));
+            recipeList.setAdapter(new RecipeArrayAdapter(this,
+                    RecipeRepository.getInstance().getRecipes(), true));
             StateManager.getLoggedInUser().observe(this, user -> setupMenuContentVisibility());
         } catch (ParseException e) {
             System.out.println(e.getLocalizedMessage());
@@ -74,18 +76,23 @@ public class MainActivity extends AppCompatActivity {
 
     public void openRecipe(Recipe recipe) {
         Intent intent = new Intent(this, RecipeActivity.class);
-        intent.putExtra("recipe", recipe); // use ID instead
+        intent.putExtra("recipe", recipe);
         startActivity(intent);
     }
 
-    private void doLoggedInUserLookup() {
+    public void addNewRecipe(View view) {
+        Intent intent = new Intent(this, ManageRecipe.class);
+        startActivity(intent);
+    }
+
+    void doLoggedInUserLookup() {
         AsyncTask.execute(() -> {
             User loggedInUser = new UserRepository(getApplicationContext()).getLoggedInUser();
             StateManager.setLoggedInUser(loggedInUser);
         });
     }
 
-    private void setupMenuContentVisibility() {
+    void setupMenuContentVisibility() {
         MenuItem login = navigationView.getMenu().findItem(R.id.nav_login);
         MenuItem logout = navigationView.getMenu().findItem(R.id.nav_logout);
         MenuItem myRecipes = navigationView.getMenu().findItem(R.id.nav_my_recipes);
@@ -98,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         favorites.setVisible(user != null);
     }
 
-    private void setupNavigationViewItemSelectedListener() {
+    void setupNavigationViewItemSelectedListener() {
         navigationView.setNavigationItemSelectedListener(menuItem -> {
             try {
                 if (menuItem.getItemId() == R.id.nav_login) {
@@ -112,18 +119,12 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(this, R.string.successfully_logged_out, Toast.LENGTH_SHORT).show()
                         );
                     });
-                } else if(menuItem.getItemId() == R.id.nav_favourites) {
-                    ListView favRecipeList = findViewById(R.id.dishList);
-                    favRecipeList.setAdapter(new RecipeArrayAdapter(this,
-                            RecipeRepository.getInstance().getFavourites()));
-                } else if(menuItem.getItemId() == R.id.nav_home) {
-                    ListView recipeList = findViewById(R.id.dishList);
-                    recipeList.setAdapter(new RecipeArrayAdapter(this,
-                            RecipeRepository.getInstance().getRecipes()));
-                } else if(menuItem.getItemId() == R.id.nav_my_recipes) {
-                    ListView myRecipeList = findViewById(R.id.dishList);
-                    myRecipeList.setAdapter(new RecipeArrayAdapter(this,
-                            RecipeRepository.getInstance().getMyRecipes()));
+                } else if (menuItem.getItemId() == R.id.nav_favourites) {
+                    setupFavoritesView();
+                } else if (menuItem.getItemId() == R.id.nav_home) {
+                    setupHomeView();
+                } else if (menuItem.getItemId() == R.id.nav_my_recipes) {
+                    setupMyRecipesView();
                 } else {
                     Toast.makeText(this, "Functionality not yet implemented!", Toast.LENGTH_SHORT).show();
                 }
@@ -133,5 +134,34 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeDrawer(GravityCompat.START);
             return false;
         });
+    }
+
+    void setupMyRecipesView() throws ParseException {
+        getSupportActionBar().setTitle(R.string.my_recipes);
+        ListView myRecipeList = findViewById(R.id.dishList);
+        myRecipeList.setAdapter(new RecipeArrayAdapter(this,
+                RecipeRepository.getInstance().getMyRecipes(), false));
+
+        View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
+        addRecipeBtnView.setVisibility(View.VISIBLE);
+    }
+
+    void setupHomeView() throws ParseException {
+        ListView recipeList = findViewById(R.id.dishList);
+        recipeList.setAdapter(new RecipeArrayAdapter(this,
+                RecipeRepository.getInstance().getRecipes(), true));
+
+        View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
+        addRecipeBtnView.setVisibility(View.GONE);
+    }
+
+    void setupFavoritesView() throws ParseException {
+        getSupportActionBar().setTitle(R.string.my_favorites);
+        ListView favRecipeList = findViewById(R.id.dishList);
+        favRecipeList.setAdapter(new RecipeArrayAdapter(this,
+                RecipeRepository.getInstance().getFavourites(), true));
+
+        View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
+        addRecipeBtnView.setVisibility(View.GONE);
     }
 }

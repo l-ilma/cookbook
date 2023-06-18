@@ -1,12 +1,9 @@
 package com.example.cookbook.recipe;
 
-import android.content.Context;
-import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,6 +21,7 @@ import com.example.cookbook.entity.User;
 import com.example.cookbook.models.Comment;
 import com.example.cookbook.models.Ingredient;
 import com.example.cookbook.models.Recipe;
+import com.example.cookbook.util.Keyboard;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -70,8 +68,6 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void getRecipeData() {
-        recipe = (Recipe) getIntent().getSerializableExtra("recipe");
-
         ImageView recipeImageView = findViewById(R.id.recipeImage);
         recipeImageView.setImageResource(recipe.image);
 
@@ -119,9 +115,7 @@ public class RecipeActivity extends AppCompatActivity {
         TextView commentView = inflatedLayout.findViewById(R.id.comment);
         commentView.setText(comment.comment);
 
-        // hide keyboard
-        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        manager.hideSoftInputFromWindow(commentView.getWindowToken(), 0);
+        Keyboard.hideKeyboard(this, commentView);
     }
 
     private void setOnCommentPostClick(View view, RelativeLayout commentLayout,

@@ -10,9 +10,21 @@
     <ListView
         android:id="@+id/dishList"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:id="@+id/addRecipeButtonLayout"
+        android:gravity="bottom"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/addRecipeButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="addNewRecipe"
+            android:text="@string/add_new_recipe" />
+    </LinearLayout>
 
     <!-- this the navigation view which draws and shows the navigation drawer -->
     <!-- include the menu created in the menu folder -->
@@ -22,5 +34,4 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         app:menu="@menu/navigation_menu" />
-
 </androidx.drawerlayout.widget.DrawerLayout>
