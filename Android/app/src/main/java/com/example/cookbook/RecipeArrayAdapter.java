@@ -1,8 +1,6 @@
 package com.example.cookbook;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -104,8 +102,7 @@ public class RecipeArrayAdapter extends BaseAdapter {
         ImageView receiptImageView = convertView.findViewById(R.id.recipeImage);
 
         if (item.recipe.imagePath != null) {
-            Drawable image = new BitmapDrawable(ImageUtils.loadFile(item.recipe.imagePath));
-            receiptImageView.setImageDrawable(image);
+            receiptImageView.setImageBitmap(ImageUtils.loadFile(item.recipe.imagePath));
         } else {
             receiptImageView.setImageResource(R.drawable.baseline_image_24);
         }

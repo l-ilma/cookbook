@@ -1,8 +1,6 @@
 package com.example.cookbook.recipe;
 
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -80,8 +78,7 @@ public class RecipeActivity extends AppCompatActivity {
         if (compositeRecipe.getValue().recipe.imagePath == null) {
             recipeImageView.setImageResource(R.drawable.baseline_image_24);
         } else {
-            Drawable image = new BitmapDrawable(ImageUtils.loadFile(compositeRecipe.getValue().recipe.imagePath));
-            recipeImageView.setImageDrawable(image);
+            recipeImageView.setImageBitmap(ImageUtils.loadFile(compositeRecipe.getValue().recipe.imagePath));
         }
 
 
