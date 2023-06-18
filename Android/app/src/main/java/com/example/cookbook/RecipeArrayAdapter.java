@@ -1,12 +1,12 @@
 package com.example.cookbook;
 
 import android.content.Context;
+import android.os.AsyncTask;
 
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -14,22 +14,25 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.cookbook.models.Recipe;
+import com.example.cookbook.entity.User;
+import com.example.cookbook.models.RecipeWithLikes;
 import com.example.cookbook.recipe.ManageRecipe;
-import com.example.cookbook.recipe.RecipeRepository;
+import com.example.cookbook.repository.LikesRepository;
+import com.example.cookbook.utils.ImageUtils;
+import com.example.cookbook.utils.StateManager;
 
-import java.text.ParseException;
 import java.util.List;
+import java.util.Objects;
 
 //custom adapter for mascot images
 public class RecipeArrayAdapter extends BaseAdapter {
-    Context context;
+    private final Context context;
     // Keep all Images in array
-    List<Recipe> recipes;
+    private final List<RecipeWithLikes> recipes;
     boolean useLikeBtn = true;
 
     // Constructor
-    public RecipeArrayAdapter(Context c, List<Recipe> recipes, boolean useLikeButton) {
+    public RecipeArrayAdapter(Context c, List<RecipeWithLikes> recipes, boolean useLikeButton) {
         context = c;
         this.recipes = recipes;
         useLikeBtn = useLikeButton; // if set to false, uses edit button
@@ -39,7 +42,7 @@ public class RecipeArrayAdapter extends BaseAdapter {
         return recipes.size();
     }
 
-    public Recipe getItem(int position) {
+    public RecipeWithLikes getItem(int position) {
         return recipes.get(position);
     }
 
@@ -54,6 +57,7 @@ public class RecipeArrayAdapter extends BaseAdapter {
                     .inflate(R.layout.card_layout, parent, false);
         }
 
+        RecipeWithLikes item = getItem(position);
         ImageButton likeEditBtn = convertView.findViewById(R.id.likeEditButton);
         if (useLikeBtn) {
             setupLikeButton(likeEditBtn, position);
@@ -72,7 +76,13 @@ public class RecipeArrayAdapter extends BaseAdapter {
         likeCountTextView.setText(String.format(context.getString(R.string.people_like), item.likes));
 
         ImageView receiptImageView = convertView.findViewById(R.id.recipeImage);
-        receiptImageView.setImageResource(item.image);
+
+        if (item.recipe.imagePath != null) {
+            receiptImageView.setImageBitmap(ImageUtils.loadFile(item.recipe.imagePath));
+        } else {
+            receiptImageView.setImageResource(R.drawable.baseline_image_24);
+        }
+
 
         setOnRecipeClick(convertView, item);
         return convertView;
@@ -83,27 +93,38 @@ public class RecipeArrayAdapter extends BaseAdapter {
     }
 
     private void setupLikeButton(View likeBtn, int position) {
+        User loggedInUser = StateManager.getLoggedInUser().getValue();
         Recipe item = getItem(position);
-        if (item.liked) {
-            likeBtn.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-            likeBtn.setTag(R.drawable.like_filled_24);
+
+        if (loggedInUser != null) {
+            likeBtn.setVisibility(View.VISIBLE);
+            boolean likedByLoggedInUser = item.likes.stream().anyMatch(like -> Objects.equals(like.username, loggedInUser.username));
+
+            if (likedByLoggedInUser) {
+                likeBtn.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
+                likeBtn.setTag(R.drawable.like_filled_24);
+            } else {
+                likeBtn.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
+                likeBtn.setTag(R.drawable.like_empty_24);
+            }
         } else {
-            likeBtn.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-            likeBtn.setTag(R.drawable.like_empty_24);
+            likeBtn.setVisibility(View.INVISIBLE);
         }
 
         View.OnClickListener likeClickListener = v -> {
-            try {
-                if (v.getTag().equals(R.drawable.like_empty_24)) {
-                    v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_filled_24));
-                    RecipeRepository.getInstance().likeRecipe(item.id);
+            if (v.getTag().equals(R.drawable.like_empty_24)) {
+                AsyncTask.execute(() ->
+                        new LikesRepository(context.getApplicationContext()).like(
+                                StateManager.getLoggedInUser().getValue().id,
+                                item.recipe.id
+                        ));
 
-                } else {
-                    v.setBackground(ContextCompat.getDrawable(context, R.drawable.like_empty_24));
-                    RecipeRepository.getInstance().unlikeRecipe(item.id);
-                }
-            } catch (ParseException e) {
-                System.out.println(e.getLocalizedMessage());
+            } else {
+                AsyncTask.execute(() ->
+                        new LikesRepository(context.getApplicationContext()).unlike(
+                                StateManager.getLoggedInUser().getValue().id,
+                                item.recipe.id
+                        ));
             }
         };
         likeBtn.setOnClickListener(likeClickListener);
@@ -114,9 +135,13 @@ public class RecipeArrayAdapter extends BaseAdapter {
 
         View.OnClickListener editClickListener = v -> {
             Intent intent = new Intent(context, ManageRecipe.class);
-            intent.putExtra("recipe", getItem(position));
+            intent.putExtra(Constants, getItem(position).id);
             context.startActivity(intent);
         };
         editBtn.setOnClickListener(editClickListener);
+    }
+
+    private void setOnRecipeClick(final View view, RecipeWithLikes recipe) {
+        view.setOnClickListener(v -> ((MainActivity) context).openRecipe(recipe));
     }
 }

@@ -14,10 +14,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cookbook.R;
-import com.example.cookbook.StateManager;
 import com.example.cookbook.databinding.ActivityLoginBinding;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.repository.UserRepository;
+import com.example.cookbook.utils.StateManager;
 
 import java.util.Objects;
 
@@ -52,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
                 finish();
             } catch (Exception e) {
                 this.runOnUiThread(() ->
-                    Toast.makeText(this, R.string.login_failed, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.login_failed, Toast.LENGTH_SHORT).show()
                 );
             }
         });
