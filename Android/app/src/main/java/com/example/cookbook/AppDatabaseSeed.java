@@ -1,8 +1,6 @@
 package com.example.cookbook;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.room.RoomDatabase.Callback;
@@ -15,7 +13,6 @@ import com.example.cookbook.entity.User;
 import com.example.cookbook.entity.UserLikesRecipeCrossRef;
 import com.example.cookbook.utils.ImageUtils;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -173,10 +170,6 @@ public class AppDatabaseSeed extends Callback {
 
         appDb.recipeDao().insertAll(recipes);
         appDb.ingredientsDao().insertAll(ingredients);
-
-        Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.pizza);
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
     }
 
     private void populateComments() {
