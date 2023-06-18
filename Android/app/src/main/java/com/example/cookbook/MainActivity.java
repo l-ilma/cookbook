@@ -32,11 +32,6 @@ import com.example.cookbook.utils.NavRecipeFilter;
 import com.example.cookbook.utils.StateManager;
 import com.example.cookbook.utils.Utils;
 
-import com.example.cookbook.models.Recipe;
-import com.example.cookbook.recipe.RecipeActivity;
-
-import java.text.ParseException;
-import com.example.cookbook.recipe.RecipeRepository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -155,35 +150,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    void setupMyRecipesView() throws ParseException {
-        getSupportActionBar().setTitle(R.string.my_recipes);
-        ListView myRecipeList = findViewById(R.id.dishList);
-        myRecipeList.setAdapter(new RecipeArrayAdapter(this,
-                RecipeRepository.getInstance().getMyRecipes(), false));
-
-        View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
-        addRecipeBtnView.setVisibility(View.VISIBLE);
-    }
-
-    void setupHomeView() throws ParseException {
-        ListView recipeList = findViewById(R.id.dishList);
-        recipeList.setAdapter(new RecipeArrayAdapter(this,
-                RecipeRepository.getInstance().getRecipes(), true));
-
-        View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
-        addRecipeBtnView.setVisibility(View.GONE);
-    }
-
-    void setupFavoritesView() throws ParseException {
-        getSupportActionBar().setTitle(R.string.my_favorites);
-        ListView favRecipeList = findViewById(R.id.dishList);
-        favRecipeList.setAdapter(new RecipeArrayAdapter(this,
-                RecipeRepository.getInstance().getFavourites(), true));
-
-        View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
-        addRecipeBtnView.setVisibility(View.GONE);
-    }
-
     private void setupDrawerLayout() {
         // drawer layout instance to toggle the menu icon to open
         // drawer and back button to close drawer
@@ -206,17 +172,24 @@ public class MainActivity extends AppCompatActivity {
 
             ListView recipeList = findViewById(R.id.dishList);
             List<RecipeWithLikes> renderedRecipes = recipes;
+            boolean useLikeBtn = true;
+            View addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
+            addRecipeBtnView.setVisibility(View.GONE);
 
             if (loggedInUser != null) {
                 long id = loggedInUser.id;
                 if (filterValue == NavRecipeFilter.FAVOURITES) {
+                    getSupportActionBar().setTitle(R.string.my_favorites);
                     renderedRecipes = recipes.stream().filter(r -> r.likes.stream().anyMatch(l -> l.id == id)).collect(Collectors.toList());
                 } else if (filterValue == NavRecipeFilter.MY) {
+                    useLikeBtn = false;
+                    getSupportActionBar().setTitle(R.string.my_recipes);
+                    addRecipeBtnView.setVisibility(View.VISIBLE);
                     renderedRecipes = recipes.stream().filter(r -> r.recipe.userId == id).collect(Collectors.toList());
                 }
             }
 
-            recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes));
+            recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes, useLikeBtn));
         }));
     }
 

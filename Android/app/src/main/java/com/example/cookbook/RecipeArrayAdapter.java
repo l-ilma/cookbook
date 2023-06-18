@@ -14,10 +14,12 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import com.example.cookbook.entity.Recipe;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.models.RecipeWithLikes;
 import com.example.cookbook.recipe.ManageRecipe;
 import com.example.cookbook.repository.LikesRepository;
+import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.ImageUtils;
 import com.example.cookbook.utils.StateManager;
 
@@ -65,15 +67,14 @@ public class RecipeArrayAdapter extends BaseAdapter {
             setupEditButton(likeEditBtn, position);
         }
 
-        Recipe item = getItem(position);
         TextView recipeDesc = convertView.findViewById(R.id.recipeDesc);
-        recipeDesc.setText(item.instructions);
+        recipeDesc.setText(item.recipe.instructions);
 
         TextView recipeTitle = convertView.findViewById(R.id.recipeTitle);
-        recipeTitle.setText(item.name);
+        recipeTitle.setText(item.recipe.name);
 
         TextView likeCountTextView = convertView.findViewById(R.id.likeCountText);
-        likeCountTextView.setText(String.format(context.getString(R.string.people_like), item.likes));
+        likeCountTextView.setText(String.format(context.getString(R.string.people_like), item.likes.size()));
 
         ImageView receiptImageView = convertView.findViewById(R.id.recipeImage);
 
@@ -88,13 +89,9 @@ public class RecipeArrayAdapter extends BaseAdapter {
         return convertView;
     }
 
-    private void setOnRecipeClick(final View view, Recipe recipe) {
-        view.setOnClickListener(v -> ((MainActivity) context).openRecipe(recipe));
-    }
-
     private void setupLikeButton(View likeBtn, int position) {
         User loggedInUser = StateManager.getLoggedInUser().getValue();
-        Recipe item = getItem(position);
+        RecipeWithLikes item = getItem(position);
 
         if (loggedInUser != null) {
             likeBtn.setVisibility(View.VISIBLE);
@@ -135,7 +132,7 @@ public class RecipeArrayAdapter extends BaseAdapter {
 
         View.OnClickListener editClickListener = v -> {
             Intent intent = new Intent(context, ManageRecipe.class);
-            intent.putExtra(Constants, getItem(position).id);
+            intent.putExtra(Constants.RECIPE_EXTRA_KEY, getItem(position).recipe.id);
             context.startActivity(intent);
         };
         editBtn.setOnClickListener(editClickListener);

@@ -75,10 +75,7 @@ public class AppDatabaseSeed extends Callback {
                 1,
                 "Chocolate Chip Cookies",
                 chocolateChipCookiesInstructions,
-                ImageUtils.createFile(
-                        "chocolate_cookies-" + UUID.randomUUID(),
-                        ImageUtils.getDrawableAsByteArray(context, R.drawable.chocolate_chip_cookies)
-                )
+                null
         );
 
         ingredients.add(new Ingredient(1, "Flour", 2, "cups"));
@@ -96,10 +93,7 @@ public class AppDatabaseSeed extends Callback {
                 2,
                 "Spaghetti and Meatballs",
                 spaghettiInstructions,
-                ImageUtils.createFile(
-                        "spaghetti_meatballs-" + UUID.randomUUID(),
-                        ImageUtils.getDrawableAsByteArray(context, R.drawable.spaghetti_meatballs)
-                )
+                null
         );
 
         ingredients.add(new Ingredient(2, "Spaghetti", 8, "ounces"));
@@ -117,10 +111,7 @@ public class AppDatabaseSeed extends Callback {
                 3,
                 "Cucumber Salad",
                 cucumberSaladInstructions,
-                ImageUtils.createFile(
-                        "cucumber_salad-" + UUID.randomUUID(),
-                        ImageUtils.getDrawableAsByteArray(context, R.drawable.cucumber_salad)
-                )
+                null
 
 
         );
@@ -140,10 +131,7 @@ public class AppDatabaseSeed extends Callback {
                 4,
                 "Homemade Pizza",
                 pizzaInstructions,
-                ImageUtils.createFile(
-                        "pizza-" + UUID.randomUUID(),
-                        ImageUtils.getDrawableAsByteArray(context, R.drawable.pizza)
-                )
+                null
         );
 
         ingredients.add(new Ingredient(4, "Pizza Dough", 1, "ball"));

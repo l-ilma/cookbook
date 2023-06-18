@@ -14,27 +14,32 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
 
 import com.example.cookbook.R;
-import com.example.cookbook.models.Ingredient;
-import com.example.cookbook.models.Recipe;
+import com.example.cookbook.entity.Ingredient;
+import com.example.cookbook.models.CompositeRecipe;
+import com.example.cookbook.repository.RecipeRepository;
+import com.example.cookbook.utils.Constants;
 
 public class ManageRecipe extends AppCompatActivity {
-    private Recipe recipe;
+    private LiveData<CompositeRecipe> recipe;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_recipe);
 
-        recipe = (Recipe) getIntent().getSerializableExtra("recipe");
+        loadCompositeRecipe();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back button
 
-        if (recipe != null) {
-            editExistingRecipe();
-        } else {
-            addNewRecipe();
-        }
+        recipe.observe(this, recipeData -> {
+            if (recipeData == null) {
+                addNewRecipe();
+            } else {
+                editExistingRecipe();
+            }
+        });
     }
 
     @Override
@@ -51,10 +56,17 @@ public class ManageRecipe extends AppCompatActivity {
     public void onSaveClick(View view) {
     }
 
+    private void loadCompositeRecipe() {
+        long recipeId = getIntent().getLongExtra(Constants.RECIPE_EXTRA_KEY, -1);
+        recipe = new RecipeRepository(getApplicationContext()).findById(recipeId);
+    }
+
     void editExistingRecipe() {
-        getSupportActionBar().setTitle(recipe.name);
+        CompositeRecipe compositeRecipe = recipe.getValue();
+        getSupportActionBar().setTitle(compositeRecipe.recipe.name);
         ImageView recipeImageView = findViewById(R.id.recipeImage);
-        recipeImageView.setImageResource(recipe.image);
+        // TODO: load image
+//        recipeImageView.setImageResource(compositeRecipe.image);
 
         LinearLayout linearLayout = findViewById(R.id.ingredientsList);
         LinearLayout linearLayoutHeader = linearLayout.findViewById(R.id.ingredientsHeader);
@@ -63,7 +75,7 @@ public class ManageRecipe extends AppCompatActivity {
         TextView measureLabelView = linearLayoutHeader.findViewById(R.id.ingredientMeasure);
         TextView actionLabelView = linearLayoutHeader.findViewById(R.id.ingredientAction);
 
-        for (Ingredient ingredient : recipe.ingredients) {
+        for (Ingredient ingredient : compositeRecipe.ingredients) {
             LinearLayout linearLayoutIngredient = new LinearLayout(this);
             linearLayoutIngredient.setLayoutParams(linearLayoutHeader.getLayoutParams());
             linearLayoutIngredient.setOrientation(LinearLayout.HORIZONTAL);
@@ -91,7 +103,7 @@ public class ManageRecipe extends AppCompatActivity {
         }
 
         EditText instructionsVew = findViewById(R.id.instructions);
-        instructionsVew.setText(recipe.instructions);
+        instructionsVew.setText(compositeRecipe.recipe.instructions);
 
     }
 
