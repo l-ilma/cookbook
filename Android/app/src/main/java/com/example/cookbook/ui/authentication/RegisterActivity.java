@@ -15,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.cookbook.MainActivity;
 import com.example.cookbook.R;
-import com.example.cookbook.StateManager;
 import com.example.cookbook.databinding.ActivityRegisterBinding;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.repository.UserRepository;
+import com.example.cookbook.utils.StateManager;
 
 import java.util.Objects;
 
