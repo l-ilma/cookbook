@@ -10,14 +10,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,12 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import com.example.cookbook.recipe.RecipeActivity;
-
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.florescu.android.rangeseekbar.RangeSeekBar;
 
@@ -71,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
     private NavigationView navigationView;
     private LayoutInflater layoutInflater;
+    private LinearLayout mainLinearLayout;
     private List<Integer> labelIds = Arrays.asList(
             R.id.label_1, R.id.label_2, R.id.label_3, R.id.label_4,
             R.id.label_5, R.id.label_6, R.id.label_7, R.id.label_8,
@@ -84,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
         attachPermissionsObserver();
+        mainLinearLayout = findViewById(R.id.lin_lay_main);
 
         layoutInflater = LayoutInflater.from(this);
 
@@ -217,15 +212,19 @@ public class MainActivity extends AppCompatActivity {
 
             if (loggedInUser != null) {
                 long id = loggedInUser.id;
+                DrawerLayout.LayoutParams params = new DrawerLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                params.setMargins(0, 0, 0, 0);
                 if (filterValue == NavRecipeFilter.FAVOURITES) {
                     getSupportActionBar().setTitle(R.string.my_favorites);
                     renderedRecipes = recipes.stream().filter(r -> r.likes.stream().anyMatch(l -> l.id == id)).collect(Collectors.toList());
                 } else if (filterValue == NavRecipeFilter.MY) {
                     useLikeBtn = false;
                     getSupportActionBar().setTitle(R.string.my_recipes);
+                    params.setMargins(0, 0, 0, 100);
                     addRecipeBtnView.setVisibility(View.VISIBLE);
                     renderedRecipes = recipes.stream().filter(r -> r.recipe.userId == id).collect(Collectors.toList());
                 }
+                mainLinearLayout.setLayoutParams(params);
             }
 
             recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes, useLikeBtn));
@@ -250,10 +249,13 @@ public class MainActivity extends AppCompatActivity {
         View inflatedView = layoutInflater.inflate(R.layout.filter_view, null);
 
         ListView dishList = findViewById(R.id.dishList);
+        LinearLayout addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
         dishList.setVisibility(View.GONE);
+        if (addRecipeBtnView != null) {
+            addRecipeBtnView.setVisibility(View.GONE);
+        }
 
-        LinearLayout linearLayout = findViewById(R.id.lin_lay_main);
-        linearLayout.addView(inflatedView);
+        mainLinearLayout.addView(inflatedView);
 
         View.OnClickListener applyButtonListener = v -> {
             onFilterApplyClick();
@@ -297,6 +299,11 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton exitButton = findViewById(R.id.exit_filter);
         exitButton.setVisibility(View.GONE);
+        LinearLayout addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
+        if (addRecipeBtnView != null) {
+            addRecipeBtnView.setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void onFilterApplyClick(){
