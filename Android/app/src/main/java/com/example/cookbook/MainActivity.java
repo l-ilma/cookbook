@@ -5,10 +5,19 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,9 +33,13 @@ import com.example.cookbook.entity.User;
 import com.example.cookbook.recipe.ManageRecipeActivity;
 import com.example.cookbook.models.RecipeWithLikes;
 import com.example.cookbook.recipe.RecipeActivity;
+import com.example.cookbook.repository.IngredientRepository;
 import com.example.cookbook.repository.RecipeRepository;
+import com.example.cookbook.models.RecipeFilter;
 import com.example.cookbook.repository.UserRepository;
 import com.example.cookbook.ui.authentication.LoginActivity;
+import com.example.cookbook.ui.custom.MultiSelectionSpinner;
+import com.google.android.material.navigation.NavigationView;
 import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.NavRecipeFilter;
 import com.example.cookbook.utils.StateManager;
@@ -36,6 +49,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import com.example.cookbook.recipe.RecipeActivity;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.florescu.android.rangeseekbar.RangeSeekBar;
 
 public class MainActivity extends AppCompatActivity {
     private final MutableLiveData<NavRecipeFilter> filter = new MutableLiveData<>(NavRecipeFilter.NONE);
@@ -46,7 +67,16 @@ public class MainActivity extends AppCompatActivity {
     private LiveData<List<RecipeWithLikes>> currentlyShowingRecipes = new MutableLiveData<>(new ArrayList<>());
     private RecipeRepository recipeRepository;
     private UserRepository userRepository;
+    private IngredientRepository ingredientRepository;
 
+    private NavigationView navigationView;
+    private LayoutInflater layoutInflater;
+    private List<Integer> labelIds = Arrays.asList(
+            R.id.label_1, R.id.label_2, R.id.label_3, R.id.label_4,
+            R.id.label_5, R.id.label_6, R.id.label_7, R.id.label_8,
+            R.id.label_9, R.id.label_10, R.id.label_11, R.id.label_12,
+            R.id.label_13, R.id.label_14, R.id.label_15, R.id.label_16
+    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +84,14 @@ public class MainActivity extends AppCompatActivity {
         mainBinding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(mainBinding.getRoot());
         attachPermissionsObserver();
+
+        layoutInflater = LayoutInflater.from(this);
+
+        View.OnClickListener filterButtonListener = v -> {
+            OnFilterClick();
+        };
+        ImageButton filterButton = findViewById(R.id.filter_button);
+        filterButton.setOnClickListener(filterButtonListener);
     }
 
     @Override
@@ -81,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
     private void renderApplicationView() {
         recipeRepository = new RecipeRepository(getApplicationContext());
         userRepository = new UserRepository(getApplicationContext());
+        ingredientRepository = new IngredientRepository(getApplicationContext());
 
         // to make the Navigation drawer icon always appear on the action bar
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -201,5 +240,92 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.successfully_logged_out, Toast.LENGTH_SHORT).show()
             );
         });
+    }
+
+    private void OnFilterClick() {
+        ImageButton filterButton = findViewById(R.id.filter_button);
+        if(!filterButton.isEnabled()) return;
+        filterButton.setEnabled(false);
+
+        View inflatedView = layoutInflater.inflate(R.layout.filter_view, null);
+
+        ListView dishList = findViewById(R.id.dishList);
+        dishList.setVisibility(View.GONE);
+
+        LinearLayout linearLayout = findViewById(R.id.lin_lay_main);
+        linearLayout.addView(inflatedView);
+
+        View.OnClickListener applyButtonListener = v -> {
+            onFilterApplyClick();
+        };
+        Button applyFilterButton = findViewById(R.id.apply_button);
+        applyFilterButton.setOnClickListener(applyButtonListener);
+
+        Thread setupIngredientsDropdownThread = new Thread(() ->
+        {
+            MultiSelectionSpinner dropdown = findViewById(R.id.ingredient_dropdown);
+            final List<String> ingredients = ingredientRepository.getAllIngredientNames();
+            MultiSelectionSpinner.MultiSpinnerListener multiSpinnerListener = selected -> {
+            };
+            dropdown.setItems(ingredients, "Choose Ingredients", multiSpinnerListener);
+        });
+
+        setupIngredientsDropdownThread.start();
+        try {
+            setupIngredientsDropdownThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        ImageButton exitFilterButton = findViewById(R.id.exit_filter);
+        exitFilterButton.setVisibility(View.VISIBLE);
+        View.OnClickListener exitListener = view -> {
+            onExitFilterClick();
+        };
+        exitFilterButton.setOnClickListener(exitListener);
+    }
+
+    private void onExitFilterClick(){
+        View filterView = findViewById(R.id.filter_view);
+        ViewGroup parent = (ViewGroup)filterView.getParent();
+        parent.removeView(filterView);
+
+        ImageButton filterButton = findViewById(R.id.filter_button);
+        filterButton.setEnabled(true);
+        ListView dishList = findViewById(R.id.dishList);
+        dishList.setVisibility(View.VISIBLE);
+
+        ImageButton exitButton = findViewById(R.id.exit_filter);
+        exitButton.setVisibility(View.GONE);
+    }
+
+    private void onFilterApplyClick(){
+        EditText recipeName = findViewById(R.id.name_of_recipe);
+        RangeSeekBar rangeSeekBar = findViewById(R.id.priceRangeSeekBar);
+        MultiSelectionSpinner multiSelectionSpinner = findViewById(R.id.ingredient_dropdown);
+        CheckBox myRecipes = findViewById(R.id.my_recipes);
+        CheckBox likedRecipes = findViewById(R.id.liked_recipes);
+
+        RecipeFilter recipeFilter = new RecipeFilter();
+        recipeFilter.name = recipeName.getText().toString();
+        recipeFilter.priceMin = rangeSeekBar.getSelectedMinValue().intValue();
+        recipeFilter.priceMax = rangeSeekBar.getSelectedMaxValue().intValue();
+        recipeFilter.my = myRecipes.isChecked();
+        recipeFilter.liked = likedRecipes.isChecked();
+        recipeFilter.ingredients = multiSelectionSpinner.getSelected();
+        recipeFilter.labels = getLabels();
+        //TODO add logic for filtering
+        onExitFilterClick();
+    }
+
+    public List<String> getLabels(){
+        List<String> labels = new ArrayList<>();
+        for(int labelId : labelIds){
+            CheckBox labelCheckBox = findViewById(labelId);
+            if(labelCheckBox.isChecked())
+                labels.add(labelCheckBox.getText().toString());
+        }
+
+        return labels;
     }
 }
