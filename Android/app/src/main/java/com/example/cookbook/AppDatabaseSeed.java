@@ -8,6 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.example.cookbook.entity.Comment;
 import com.example.cookbook.entity.Ingredient;
+import com.example.cookbook.entity.Label;
 import com.example.cookbook.entity.Recipe;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.entity.UserLikesRecipeCrossRef;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
@@ -38,6 +40,7 @@ public class AppDatabaseSeed extends Callback {
 
             try {
                 populateUsers();
+                populateLabels();
                 populateRecipesWithIngredients();
                 populateComments();
                 populateLikes();
@@ -45,6 +48,27 @@ public class AppDatabaseSeed extends Callback {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void populateLabels(){
+        appDb.labelsDao().insertAll(Arrays.asList(
+                new Label("Breakfast", "#FF9800"),       // Orange
+                new Label("Dinner", "#4CAF50"),          // Green
+                new Label("Lunch", "#F44336"),           // Red
+                new Label("Spicy", "#FF5722"),           // Deep Orange
+                new Label("Salty", "#2196F3"),           // Blue
+                new Label("Dessert", "#9C27B0"),         // Purple
+                new Label("Vegetarian", "#4CAF50"),      // Green
+                new Label("Vegan", "#FFEB3B"),           // Yellow
+                new Label("Gluten-Free", "#FFFFFF"),     // White
+                new Label("Low-Carb", "#FFEB3B"),        // Yellow
+                new Label("High-Protein", "#2196F3"),    // Blue
+                new Label("Organic", "#4CAF50"),         // Green
+                new Label("Sugar-Free", "#E91E63"),      // Pink
+                new Label("Halal", "#4CAF50"),           // Green
+                new Label("Kosher", "#2196F3"),          // Blue
+                new Label("Non-GMO", "#FF5722")          // Deep Orange
+        ));
     }
 
     private void populateUsers() {
@@ -77,7 +101,7 @@ public class AppDatabaseSeed extends Callback {
                 ImageUtils.createFile(
                         "chocolate_cookies-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.chocolate_chip_cookies)
-                )
+                ), generateRandomLabels(), 20
         );
 
         ingredients.add(new Ingredient(1, "Flour", 2, "cups"));
@@ -98,7 +122,7 @@ public class AppDatabaseSeed extends Callback {
                 ImageUtils.createFile(
                         "spaghetti_meatballs-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.spaghetti_meatballs)
-                )
+                ), generateRandomLabels(), 15
         );
 
         ingredients.add(new Ingredient(2, "Spaghetti", 8, "ounces"));
@@ -119,7 +143,7 @@ public class AppDatabaseSeed extends Callback {
                 ImageUtils.createFile(
                         "cucumber_salad-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.cucumber_salad)
-                )
+                ), generateRandomLabels(), 35
         );
 
         ingredients.add(new Ingredient(3, "Cucumber", 2, "medium-sized"));
@@ -140,7 +164,7 @@ public class AppDatabaseSeed extends Callback {
                 ImageUtils.createFile(
                         "pizza-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.pizza)
-                )
+                ), generateRandomLabels(), 24.99
         );
 
         ingredients.add(new Ingredient(4, "Pizza Dough", 1, "ball"));
@@ -158,7 +182,7 @@ public class AppDatabaseSeed extends Callback {
                 5,
                 "Pancakes",
                 pancakesInstructions,
-                null
+                null, generateRandomLabels(), 12.99
         );
 
         ingredients.add(new Ingredient(5, "Flour", 1, "cup"));
@@ -202,5 +226,27 @@ public class AppDatabaseSeed extends Callback {
                         new UserLikesRecipeCrossRef(5, 3)
                 )
         );
+    }
+
+    private String generateRandomLabels(){
+        int start = 1;
+        int end = 17;
+        int count = end - start + 1;
+
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+
+        int no_labels = random.nextInt(count) + start;
+
+        for (int i = 0; i < no_labels; i++) {
+            int randomNumber = random.nextInt(count) + start;
+            sb.append(randomNumber);
+
+            if (i < count - 1) {
+                sb.append(",");
+            }
+        }
+
+        return sb.toString();
     }
 }

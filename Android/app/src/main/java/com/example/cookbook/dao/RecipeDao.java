@@ -22,6 +22,10 @@ public interface RecipeDao {
     @Query("SELECT * from Recipe WHERE id = :id")
     LiveData<CompositeRecipe> findById(long id);
 
+    @Transaction
+    @Query("SELECT price from Recipe")
+    List<Double> getAllPrices();
+
     @Insert
     void insertAll(List<Recipe> recipes);
 }

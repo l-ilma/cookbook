@@ -19,13 +19,18 @@ public class Recipe extends BaseEntity {
     public String name;
 
     public String instructions;
+    public String labels;
 
     public String imagePath;
+    public double price;
 
-    public Recipe(long userId, String name, String instructions, String imagePath) {
+    public Recipe(long userId, String name, String instructions, String imagePath, String labels,
+                  double price) {
         this.userId = userId;
         this.name = name;
         this.instructions = instructions;
         this.imagePath = imagePath;
+        this.labels = labels;
+        this.price = price;
     }
 }

@@ -21,4 +21,7 @@ public interface IngredientsDao {
     @Transaction
     @Query("SELECT DISTINCT name from ingredient")
     List<String> getAllDistinctIngredientNames();
+    @Transaction
+    @Query("SELECT name from ingredient where recipeId = :id")
+    List<String> getIngredientsForRecipe(long id);
 }
