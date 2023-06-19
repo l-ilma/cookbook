@@ -232,7 +232,7 @@ public class ManageRecipeActivity extends AppCompatActivity {
     void addNewRecipe() {
         getSupportActionBar().setTitle(R.string.new_recipe);
         Recipe recipe = new Recipe(StateManager.getLoggedInUser().getValue().id,
-                getString(R.string.new_recipe), "", "");
+                getString(R.string.new_recipe), "", "", "", 0);
         AsyncTask.execute(() -> {
             long id = recipeRepository.add(recipe);
             recipe.id = id;

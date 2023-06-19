@@ -252,7 +252,7 @@ public class MainActivity extends AppCompatActivity {
                 filteredRecipes = filterRecipesByMyAndLiked(filteredRecipes, filter.my, filter.liked);
 
                 renderedRecipes = filteredRecipes;
-                recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes));
+                recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes, true));
             }
         }));
     }
