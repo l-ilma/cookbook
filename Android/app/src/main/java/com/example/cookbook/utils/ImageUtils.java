@@ -15,21 +15,14 @@ import java.io.OutputStream;
 
 public class ImageUtils {
 
-    private static final String imagesDir = Environment.getExternalStorageDirectory() + "/local_images";
+    private static final File imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
     public static String createFile(String fileName, byte[] bytes) throws IOException {
-        File file = new File(imagesDir + File.separator + fileName);
-
-        if (!file.exists()) file.createNewFile();
-
-        if (file.exists()) {
-            OutputStream fo = new FileOutputStream(file);
-            fo.write(bytes);
-            fo.close();
-            System.out.println("file created: " + file);
-        }
-
-        return file.getAbsolutePath();
+        String path = imagesDir + File.separator + fileName;
+        OutputStream fo = new FileOutputStream(path);
+        fo.write(bytes);
+        fo.close();
+        return path;
     }
 
     public static Bitmap loadFile(String path) {

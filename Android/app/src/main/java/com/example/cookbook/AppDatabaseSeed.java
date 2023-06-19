@@ -36,7 +36,6 @@ public class AppDatabaseSeed extends Callback {
         Executors.newSingleThreadScheduledExecutor().execute(() -> {
             appDb = AppDatabase.getInstance(context);
 
-
             try {
                 populateUsers();
                 populateRecipesWithIngredients();
@@ -75,10 +74,10 @@ public class AppDatabaseSeed extends Callback {
                 1,
                 "Chocolate Chip Cookies",
                 chocolateChipCookiesInstructions,
-                null/*ImageUtils.createFile(
+                ImageUtils.createFile(
                         "chocolate_cookies-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.chocolate_chip_cookies)
-                )*/
+                )
         );
 
         ingredients.add(new Ingredient(1, "Flour", 2, "cups"));
@@ -96,10 +95,10 @@ public class AppDatabaseSeed extends Callback {
                 2,
                 "Spaghetti and Meatballs",
                 spaghettiInstructions,
-                null/*ImageUtils.createFile(
+                ImageUtils.createFile(
                         "spaghetti_meatballs-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.spaghetti_meatballs)
-                )*/
+                )
         );
 
         ingredients.add(new Ingredient(2, "Spaghetti", 8, "ounces"));
@@ -117,12 +116,10 @@ public class AppDatabaseSeed extends Callback {
                 3,
                 "Cucumber Salad",
                 cucumberSaladInstructions,
-                null/*ImageUtils.createFile(
+                ImageUtils.createFile(
                         "cucumber_salad-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.cucumber_salad)
-                )*/
-
-
+                )
         );
 
         ingredients.add(new Ingredient(3, "Cucumber", 2, "medium-sized"));
@@ -140,10 +137,10 @@ public class AppDatabaseSeed extends Callback {
                 4,
                 "Homemade Pizza",
                 pizzaInstructions,
-                null/*ImageUtils.createFile(
+                ImageUtils.createFile(
                         "pizza-" + UUID.randomUUID(),
                         ImageUtils.getDrawableAsByteArray(context, R.drawable.pizza)
-                )*/
+                )
         );
 
         ingredients.add(new Ingredient(4, "Pizza Dough", 1, "ball"));
