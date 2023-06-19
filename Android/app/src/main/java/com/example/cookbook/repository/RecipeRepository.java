@@ -34,4 +34,6 @@ public class RecipeRepository {
     public LiveData<List<RecipeWithLikes>> getAllRecipes() {
         return recipeDao.getAllRecipes();
     }
+
+    public List<Double> getAllPrices() { return recipeDao.getAllPrices(); }
 }

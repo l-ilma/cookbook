@@ -27,11 +27,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.cookbook.databinding.ActivityMainBinding;
+import com.example.cookbook.entity.Label;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.recipe.ManageRecipeActivity;
 import com.example.cookbook.models.RecipeWithLikes;
 import com.example.cookbook.recipe.RecipeActivity;
 import com.example.cookbook.repository.IngredientRepository;
+import com.example.cookbook.repository.LabelRepository;
 import com.example.cookbook.repository.RecipeRepository;
 import com.example.cookbook.models.RecipeFilter;
 import com.example.cookbook.repository.UserRepository;
@@ -44,16 +46,22 @@ import com.example.cookbook.utils.StateManager;
 import com.example.cookbook.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+
 import java.util.Arrays;
 
+import org.apache.commons.lang3.StringUtils;
 import org.florescu.android.rangeseekbar.RangeSeekBar;
 
+
 public class MainActivity extends AppCompatActivity {
-    private final MutableLiveData<NavRecipeFilter> filter = new MutableLiveData<>(NavRecipeFilter.NONE);
+    private final MutableLiveData<NavRecipeFilter> navFilter = new MutableLiveData<>(NavRecipeFilter.NONE);
     private final MutableLiveData<Boolean> arePermissionsAllowed = new MutableLiveData<>(Utils.isExternalWriteEnabled());
+    private final MutableLiveData<RecipeFilter> recipeFilter = new MutableLiveData<RecipeFilter>(null);
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
     private ActivityMainBinding mainBinding;
@@ -61,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private RecipeRepository recipeRepository;
     private UserRepository userRepository;
     private IngredientRepository ingredientRepository;
+    private LabelRepository labelRepository;
 
     private NavigationView navigationView;
     private LayoutInflater layoutInflater;
@@ -83,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         layoutInflater = LayoutInflater.from(this);
 
         View.OnClickListener filterButtonListener = v -> {
-            OnFilterClick();
+            onFilterClick();
         };
         ImageButton filterButton = findViewById(R.id.filter_button);
         filterButton.setOnClickListener(filterButtonListener);
@@ -115,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
         recipeRepository = new RecipeRepository(getApplicationContext());
         userRepository = new UserRepository(getApplicationContext());
         ingredientRepository = new IngredientRepository(getApplicationContext());
+        labelRepository = new LabelRepository(getApplicationContext());
 
         // to make the Navigation drawer icon always appear on the action bar
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -170,12 +180,12 @@ public class MainActivity extends AppCompatActivity {
             } else if (menuItem.getItemId() == R.id.nav_logout) {
                 logoutMenuItemClick();
             } else if (menuItem.getItemId() == R.id.nav_favourites) {
-                filter.postValue(NavRecipeFilter.FAVOURITES);
+                navFilter.postValue(NavRecipeFilter.FAVOURITES);
             } else if (menuItem.getItemId() == R.id.nav_home) {
                 loadHomeRecipes();
-                filter.postValue(NavRecipeFilter.NONE);
+                navFilter.postValue(NavRecipeFilter.NONE);
             } else if (menuItem.getItemId() == R.id.nav_my_recipes) {
-                filter.postValue(NavRecipeFilter.MY);
+                navFilter.postValue(NavRecipeFilter.MY);
             } else {
                 Toast.makeText(this, "Functionality not yet implemented!", Toast.LENGTH_SHORT).show();
             }
@@ -201,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void attachFiltersObserver() {
-        currentlyShowingRecipes.observe(this, recipes -> filter.observe(this, filterValue -> {
+        currentlyShowingRecipes.observe(this, recipes -> navFilter.observe(this, filterValue -> {
             User loggedInUser = StateManager.getLoggedInUser().getValue();
 
             ListView recipeList = findViewById(R.id.dishList);
@@ -229,6 +239,125 @@ public class MainActivity extends AppCompatActivity {
 
             recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes, useLikeBtn));
         }));
+
+        currentlyShowingRecipes.observe(this, recipes -> recipeFilter.observe(this, filter -> {
+            ListView recipeList = findViewById(R.id.dishList);
+            List<RecipeWithLikes> renderedRecipes = recipes;
+            List<RecipeWithLikes> filteredRecipes;
+            if(filter != null){
+                filteredRecipes = filterRecipesByName(renderedRecipes, filter.name);
+                filteredRecipes = filterRecipesByLabel(filteredRecipes, filter.labels);
+                filteredRecipes = filterRecipesByPrice(filteredRecipes, filter.priceMax, filter.priceMin);
+                filteredRecipes = filterRecipesByIngredient(filteredRecipes, filter.ingredients);
+                filteredRecipes = filterRecipesByMyAndLiked(filteredRecipes, filter.my, filter.liked);
+
+                renderedRecipes = filteredRecipes;
+                recipeList.setAdapter(new RecipeArrayAdapter(this, renderedRecipes));
+            }
+        }));
+    }
+
+    private List<RecipeWithLikes> filterRecipesByMyAndLiked(List<RecipeWithLikes> recipes,
+                                                            boolean my, boolean liked) {
+        User loggedInUser = StateManager.getLoggedInUser().getValue();
+        if(loggedInUser == null) return recipes;
+        List<RecipeWithLikes> filteredRecipes = new ArrayList<>();
+        if(my){
+            for(RecipeWithLikes recipe : recipes){
+                if(recipe.recipe.userId == loggedInUser.id){
+                    filteredRecipes.add(recipe);
+                }
+            }
+        }
+
+        if(liked){
+            for(RecipeWithLikes recipe : recipes){
+                if(recipe.likes.contains(loggedInUser)){
+                    filteredRecipes.add(recipe);
+                }
+            }
+        }
+
+        if(!my && !liked) filteredRecipes = recipes;
+
+        return filteredRecipes;
+    }
+    private List<RecipeWithLikes> filterRecipesByIngredient(List<RecipeWithLikes> recipes,
+                                                            List<String> ingredients){
+        List<RecipeWithLikes> filteredRecipes = new ArrayList<>();
+        for(RecipeWithLikes recipe : recipes){
+            AtomicReference<List<String>> recipeIngredients = new AtomicReference<>();
+            Thread getIngredientsForRecipeThread = new Thread(() -> {
+                recipeIngredients.set(ingredientRepository.getIngredientForRecipe(recipe.recipe.id));
+            });
+
+            getIngredientsForRecipeThread.start();
+            try {
+                getIngredientsForRecipeThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if(recipeIngredients.get().stream().anyMatch(ingredients::contains)){
+                filteredRecipes.add(recipe);
+            }
+        }
+
+        return filteredRecipes;
+    }
+
+    private List<RecipeWithLikes> filterRecipesByPrice(List<RecipeWithLikes> recipes, int priceMax,
+                                                       int priceMin){
+        List<RecipeWithLikes> filteredRecipes = new ArrayList<>();
+        for(RecipeWithLikes recipe : recipes){
+            if(recipe.recipe.price >= priceMin && recipe.recipe.price <= priceMax){
+                filteredRecipes.add(recipe);
+            }
+        }
+
+        return filteredRecipes;
+    }
+
+    private List<RecipeWithLikes> filterRecipesByName(List<RecipeWithLikes> recipes, String name){
+        List<RecipeWithLikes> filteredRecipes = new ArrayList<>();
+        if(name != null && !name.equals(""))
+        {
+            for(RecipeWithLikes recipe : recipes){
+                List<String> titleWords = Arrays.asList(recipe.recipe.name.split(" "));
+                for(String word : titleWords){
+                    int levenshteinDistance = StringUtils.getLevenshteinDistance(name, word);
+                    int maxDistance = Math.max(name.length(), word.length());
+
+                    double similarity = 1.0 - (double) levenshteinDistance / maxDistance;
+                    if(similarity >= 0.5){
+                        filteredRecipes.add(recipe);
+                        break;
+                    }
+                }
+
+            }
+        }
+        else{
+            return recipes;
+        }
+        return filteredRecipes;
+    }
+
+    private List<RecipeWithLikes> filterRecipesByLabel(List<RecipeWithLikes> recipes, List<String> labels){
+        List<RecipeWithLikes> filteredRecipes = new ArrayList<>();
+        if(labels.size() > 0){
+            for(RecipeWithLikes recipe : recipes){
+                List<String> recipeLabels = Arrays.asList(recipe.recipe.labels.split(","));
+                if(recipeLabels.stream().anyMatch(labels::contains)){
+                    filteredRecipes.add(recipe);
+                }
+            }
+        }
+        else{
+            return recipes;
+        }
+
+        return filteredRecipes;
     }
 
     private void logoutMenuItemClick() {
@@ -241,7 +370,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void OnFilterClick() {
+    private void onFilterClick() {
         ImageButton filterButton = findViewById(R.id.filter_button);
         if(!filterButton.isEnabled()) return;
         filterButton.setEnabled(false);
@@ -256,6 +385,41 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mainLinearLayout.addView(inflatedView);
+
+        Thread setupLabelCheckboxesThread = new Thread(() ->
+        {
+            setLabelCheckboxes();
+        });
+
+        User loggedInUser = StateManager.getLoggedInUser().getValue();
+        if(loggedInUser == null){
+            CheckBox myRecipes = findViewById(R.id.my_recipes);
+            myRecipes.setVisibility(View.GONE);
+            CheckBox likedRecipes = findViewById(R.id.liked_recipes);
+            likedRecipes.setVisibility(View.GONE);
+        }
+
+        AtomicReference<List<Double>> prices = new AtomicReference<>();
+        Thread getAllPricesThread = new Thread(() -> {
+            prices.set(recipeRepository.getAllPrices());
+        });
+        getAllPricesThread.start();
+        try {
+            getAllPricesThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        RangeSeekBar priceSeekbar = findViewById(R.id.priceRangeSeekBar);
+        priceSeekbar.setRangeValues(Collections.min(prices.get()), Collections.max(prices.get()));
+
+
+        setupLabelCheckboxesThread.start();
+        try {
+            setupLabelCheckboxesThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         View.OnClickListener applyButtonListener = v -> {
             onFilterApplyClick();
@@ -321,18 +485,40 @@ public class MainActivity extends AppCompatActivity {
         recipeFilter.liked = likedRecipes.isChecked();
         recipeFilter.ingredients = multiSelectionSpinner.getSelected();
         recipeFilter.labels = getLabels();
-        //TODO add logic for filtering
+
+        this.recipeFilter.postValue(recipeFilter);
+
         onExitFilterClick();
     }
 
     public List<String> getLabels(){
+        AtomicReference<List<Label>> atomicAllLabels = new AtomicReference<>();
+        Thread getAllLabelsThread = new Thread(() ->{
+            atomicAllLabels.set(labelRepository.getAllLabels());
+        });
+
+        getAllLabelsThread.start();
+        try {
+            getAllLabelsThread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        List<Label> allLabels = atomicAllLabels.get();
         List<String> labels = new ArrayList<>();
-        for(int labelId : labelIds){
-            CheckBox labelCheckBox = findViewById(labelId);
+        for(int i = 0; i < labelIds.size(); i++){
+            CheckBox labelCheckBox = findViewById(labelIds.get(i));
             if(labelCheckBox.isChecked())
-                labels.add(labelCheckBox.getText().toString());
+                labels.add(Long.toString(allLabels.get(i).id));
         }
 
         return labels;
+    }
+
+    private void setLabelCheckboxes(){
+        List<Label> labels = labelRepository.getAllLabels();
+        for(int i = 0; i < labelIds.size(); i++){
+            CheckBox checkBox = findViewById(labelIds.get(i));
+            checkBox.setText(labels.get(i).name);
+        }
     }
 }

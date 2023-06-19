@@ -21,6 +21,9 @@ public interface IngredientsDao {
     @Transaction
     @Query("SELECT DISTINCT name from ingredient")
     List<String> getAllDistinctIngredientNames();
+    @Transaction
+    @Query("SELECT name from ingredient where recipeId = :id")
+    List<String> getIngredientsForRecipe(long id);
     @Insert
     long add(Ingredient ingredient);
     @Query("UPDATE Ingredient SET name = :name, quantity = :quantity, measure = :measure WHERE recipeId = :recipeId AND id = :ingredientId")

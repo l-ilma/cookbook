@@ -23,5 +23,9 @@ public class IngredientRepository {
     public List<String> getAllIngredientNames(){
         return ingredientsDao.getAllDistinctIngredientNames();
     }
+
+    public List<String> getIngredientForRecipe(long id){
+        return ingredientsDao.getIngredientsForRecipe(id);
+    }
 }
 
