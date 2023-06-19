@@ -1,10 +1,10 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/recipeView"
     android:layout_marginVertical="10dp"
-    tools:context=".recipe.ManageRecipe">
+    tools:context=".recipe.ManageRecipeActivity">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,6 +16,30 @@
             android:layout_width="match_parent"
             android:layout_height="400dp" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp"
+            android:weightSum="2">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/name_colon"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_weight="1"
+                />
+
+            <EditText
+                android:layout_width="0dp"
+                android:id="@+id/recipeName"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:inputType="text"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -25,50 +49,24 @@
             android:textStyle="bold" />
 
         <LinearLayout
-            android:id="@+id/ingredientsList"
+            android:id="@+id/ingredientList"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:weightSum="10"
-                android:id="@+id/ingredientsHeader"
-                android:orientation="horizontal">
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:textStyle="bold"
-                    android:id="@+id/ingredientName"
-                    android:text="Name"/>
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1.5"
-                    android:textStyle="bold"
-                    android:id="@+id/ingredientQuantity"
-                    android:textAlignment="viewEnd"
-                    android:text="Quantity"/>
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="2.5"
-                    android:textStyle="bold"
-                    android:id="@+id/ingredientMeasure"
-                    android:textAlignment="viewEnd"
-                    android:text="Measure"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:id="@+id/ingredientAction"
-                    android:textAlignment="viewEnd"/>
-            </LinearLayout>
+            <include layout="@layout/ingredient_list_header" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/addIngredientBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="onAddIngredientClick"
+            android:backgroundTint="#ccfbf1"
+            android:textColor="@color/teal_700"
+            android:text="@string/add" />
 
         <TextView
             android:layout_width="match_parent"

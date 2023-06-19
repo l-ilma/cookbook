@@ -14,10 +14,9 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.example.cookbook.entity.Recipe;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.models.RecipeWithLikes;
-import com.example.cookbook.recipe.ManageRecipe;
+import com.example.cookbook.recipe.ManageRecipeActivity;
 import com.example.cookbook.repository.LikesRepository;
 import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.ImageUtils;
@@ -131,7 +130,7 @@ public class RecipeArrayAdapter extends BaseAdapter {
         editBtn.setBackground(ContextCompat.getDrawable(context, R.drawable.baseline_edit_24));
 
         View.OnClickListener editClickListener = v -> {
-            Intent intent = new Intent(context, ManageRecipe.class);
+            Intent intent = new Intent(context, ManageRecipeActivity.class);
             intent.putExtra(Constants.RECIPE_EXTRA_KEY, getItem(position).recipe.id);
             context.startActivity(intent);
         };

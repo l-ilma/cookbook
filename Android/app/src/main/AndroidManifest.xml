@@ -31,7 +31,7 @@
         <activity
             android:name=".recipe.RecipeActivity"
             android:exported="true" />
-        <activity android:name=".recipe.ManageRecipe"
+        <activity android:name=".recipe.ManageRecipeActivity"
             android:exported="true">
         </activity>
     </application>

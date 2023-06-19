@@ -24,4 +24,8 @@ public interface RecipeDao {
 
     @Insert
     void insertAll(List<Recipe> recipes);
+    @Insert
+    long add(Recipe recipe);
+    @Query("UPDATE Recipe SET name = :name, instructions = :instructions WHERE id = :id")
+    void update(long id, String name, String instructions);
 }

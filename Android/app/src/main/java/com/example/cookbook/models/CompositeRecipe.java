@@ -13,6 +13,12 @@ import com.example.cookbook.entity.UserLikesRecipeCrossRef;
 import java.util.List;
 
 public class CompositeRecipe {
+    public CompositeRecipe(Recipe recipe, List<Comment> comments, List<Ingredient> ingredients) {
+        this.recipe = recipe;
+        this.comments = comments;
+        this.ingredients = ingredients;
+    }
+
     @Embedded
     public Recipe recipe;
 

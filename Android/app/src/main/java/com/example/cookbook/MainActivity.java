@@ -21,7 +21,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.cookbook.databinding.ActivityMainBinding;
 import com.example.cookbook.entity.User;
-import com.example.cookbook.recipe.ManageRecipe;
+import com.example.cookbook.recipe.ManageRecipeActivity;
 import com.example.cookbook.models.RecipeWithLikes;
 import com.example.cookbook.recipe.RecipeActivity;
 import com.example.cookbook.repository.RecipeRepository;
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addNewRecipe(View view) {
-        Intent intent = new Intent(this, ManageRecipe.class);
+        Intent intent = new Intent(this, ManageRecipeActivity.class);
         startActivity(intent);
     }
 
