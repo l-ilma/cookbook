@@ -27,8 +27,8 @@ public class RecipeRepository {
         return recipeDao.add(recipe);
     }
 
-    public void updateRecipe(long id, String name, String instructions) {
-        recipeDao.update(id, name, instructions);
+    public void updateRecipe(long id, String name, String instructions, String imagePath) {
+        recipeDao.update(id, name, instructions, imagePath);
     }
 
     public LiveData<List<RecipeWithLikes>> getAllRecipes() {

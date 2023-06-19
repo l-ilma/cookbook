@@ -1,6 +1,5 @@
 package com.example.cookbook.recipe;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -28,8 +27,8 @@ import com.example.cookbook.repository.RecipeRepository;
 import com.example.cookbook.repository.UserRepository;
 import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.ImageUtils;
+import com.example.cookbook.utils.Keyboard;
 import com.example.cookbook.utils.StateManager;
-import com.example.cookbook.util.Keyboard;
 
 import java.util.List;
 import java.util.Objects;
@@ -73,15 +72,7 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void renderRecipeData() {
-
-        ImageView recipeImageView = findViewById(R.id.recipeImage);
-        if (compositeRecipe.getValue().recipe.imagePath == null) {
-            recipeImageView.setImageResource(R.drawable.baseline_image_24);
-        } else {
-            recipeImageView.setImageBitmap(ImageUtils.loadFile(compositeRecipe.getValue().recipe.imagePath));
-        }
-
-
+        ImageUtils.setImageView(findViewById(R.id.recipeImage), compositeRecipe.getValue().recipe.imagePath);
         LinearLayout linearLayout = findViewById(R.id.ingredientsList);
         linearLayout.removeAllViews();
 

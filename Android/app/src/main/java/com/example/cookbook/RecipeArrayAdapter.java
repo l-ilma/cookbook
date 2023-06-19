@@ -1,15 +1,13 @@
 package com.example.cookbook;
 
 import android.content.Context;
-import android.os.AsyncTask;
-
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -74,16 +72,8 @@ public class RecipeArrayAdapter extends BaseAdapter {
 
         TextView likeCountTextView = convertView.findViewById(R.id.likeCountText);
         likeCountTextView.setText(String.format(context.getString(R.string.people_like), item.likes.size()));
-
-        ImageView receiptImageView = convertView.findViewById(R.id.recipeImage);
-
-        if (item.recipe.imagePath != null) {
-            receiptImageView.setImageBitmap(ImageUtils.loadFile(item.recipe.imagePath));
-        } else {
-            receiptImageView.setImageResource(R.drawable.baseline_image_24);
-        }
-
-
+        ImageUtils.setImageView(convertView.findViewById(R.id.recipeImage), item.recipe.imagePath);
+        
         setOnRecipeClick(convertView, item);
         return convertView;
     }

@@ -11,7 +11,10 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +27,7 @@ import com.example.cookbook.models.CompositeRecipe;
 import com.example.cookbook.repository.IngredientsRepository;
 import com.example.cookbook.repository.RecipeRepository;
 import com.example.cookbook.utils.Constants;
+import com.example.cookbook.utils.ImageUtils;
 import com.example.cookbook.utils.StateManager;
 
 import java.util.ArrayList;
@@ -42,10 +46,22 @@ public class ManageRecipeActivity extends AppCompatActivity {
     EditText recipeInstructionsView;
     RecipeRepository recipeRepository;
     IngredientsRepository ingredientsRepository;
+    String loadedImagePath;
     int nameViewId = View.generateViewId();
     int quantityViewId = View.generateViewId();
     int measureViewId = View.generateViewId();
     boolean recipeAdded = false;
+
+    ActivityResultLauncher<String> imageUploader = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                try {
+                    loadedImagePath = ImageUtils.uploadLocalImageFromUri(getContentResolver(), uri);
+                    ((ImageView) findViewById(R.id.recipeImage)).setImageBitmap(ImageUtils.loadFile(loadedImagePath));
+                } catch (Exception e) {
+                    Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show();
+                }
+            });
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,27 +85,33 @@ public class ManageRecipeActivity extends AppCompatActivity {
                 editExistingRecipe();
             }
         });
+
+        findViewById(R.id.recipeImageEdit).setOnClickListener(view -> {
+            imageUploader.launch("image/*");
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     public void onSaveClick(View view) {
         AsyncTask.execute(() -> {
             long recipeId = existingCompositeRecipeLiveData.getValue() == null ?
                     newCompositeRecipe.recipe.id : existingCompositeRecipeLiveData.getValue().recipe.id;
+            String imagePath = existingCompositeRecipeLiveData.getValue() == null ?
+                    newCompositeRecipe.recipe.imagePath : existingCompositeRecipeLiveData.getValue().recipe.imagePath;
             recipeRepository.updateRecipe(
                     recipeId,
                     recipeNameView.getText().toString(),
-                    recipeInstructionsView.getText().toString());
+                    recipeInstructionsView.getText().toString(),
+                    loadedImagePath == null ? imagePath : loadedImagePath
+            );
             List<Ingredient> updatedIngredientsData = getUpdatedIngredients();
             List<Ingredient> existingIngredients = existingCompositeRecipeLiveData.getValue() == null ?
                     newCompositeRecipe.ingredients : existingCompositeRecipeLiveData.getValue().ingredients;
@@ -116,8 +138,7 @@ public class ManageRecipeActivity extends AppCompatActivity {
                 existingCompositeRecipeLiveData.getValue() : newCompositeRecipe;
         Ingredient newIngredient = new Ingredient(compositeRecipe.recipe.id, "", 0, "");
         AsyncTask.execute(() -> {
-            long id = ingredientsRepository.addIngredientToRecipe(newIngredient);
-            newIngredient.id = id;
+            newIngredient.id = ingredientsRepository.addIngredientToRecipe(newIngredient);
             compositeRecipe.ingredients.add(newIngredient);
         });
         renderIngredient(newIngredient);
@@ -132,9 +153,7 @@ public class ManageRecipeActivity extends AppCompatActivity {
         CompositeRecipe existingCompositeRecipe = existingCompositeRecipeLiveData.getValue();
         getSupportActionBar().setTitle(existingCompositeRecipe.recipe.name);
         recipeNameView.setText(existingCompositeRecipe.recipe.name);
-        ImageView recipeImageView = findViewById(R.id.recipeImage);
-        // TODO: load image
-//        recipeImageView.setImageResource(existingCompositeRecipe.image);
+        ImageUtils.setImageView(findViewById(R.id.recipeImage), existingCompositeRecipe.recipe.imagePath);
 
         for (Ingredient ingredient : existingCompositeRecipe.ingredients) {
             renderIngredient(ingredient);

@@ -1,4 +1,4 @@
-package com.example.cookbook.util;
+package com.example.cookbook.utils;
 
 import android.content.Context;
 import android.view.View;
