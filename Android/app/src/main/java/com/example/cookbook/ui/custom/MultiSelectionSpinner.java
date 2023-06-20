@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +31,7 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
 
     @Override
     public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        if (isChecked)
-            selected[which] = true;
-        else
-            selected[which] = false;
+        selected[which] = isChecked;
     }
 
     @Override
@@ -44,7 +40,7 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         StringBuffer spinnerBuffer = new StringBuffer();
         boolean someSelected = false;
         for (int i = 0; i < items.size(); i++) {
-            if (selected[i] == true) {
+            if (selected[i]) {
                 spinnerBuffer.append(items.get(i));
                 spinnerBuffer.append(", ");
                 someSelected = true;
@@ -60,7 +56,7 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         }
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
                 android.R.layout.simple_spinner_item,
-                new String[] { spinnerText });
+                new String[]{spinnerText});
         setAdapter(adapter);
         listener.onItemsSelected(selected);
     }
@@ -71,13 +67,7 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         builder.setMultiChoiceItems(
                 items.toArray(new CharSequence[items.size()]), selected, this);
         builder.setPositiveButton(android.R.string.ok,
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
+                (dialog, which) -> dialog.cancel());
         builder.setOnCancelListener(this);
         builder.show();
         return true;
@@ -95,16 +85,16 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
             selected[i] = true;
 
         // all text on the spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
-                android.R.layout.simple_spinner_item, new String[] { allText });
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, new String[]{allText});
 
         setAdapter(adapter);
     }
 
-    public List<String> getSelected(){
+    public List<String> getSelected() {
         List<String> selectedItems = new ArrayList<>();
-        for(int i = 0; i < selected.length; i++){
-            if(selected[i]){
+        for (int i = 0; i < selected.length; i++) {
+            if (selected[i]) {
                 selectedItems.add(items.get(i));
             }
         }
@@ -113,6 +103,6 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
     }
 
     public interface MultiSpinnerListener {
-        public void onItemsSelected(boolean[] selected);
+        void onItemsSelected(boolean[] selected);
     }
 }

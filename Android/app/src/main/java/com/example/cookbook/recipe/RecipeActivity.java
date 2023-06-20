@@ -1,12 +1,10 @@
 package com.example.cookbook.recipe;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -29,6 +27,7 @@ import com.example.cookbook.repository.RecipeRepository;
 import com.example.cookbook.repository.UserRepository;
 import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.ImageUtils;
+import com.example.cookbook.utils.Keyboard;
 import com.example.cookbook.utils.StateManager;
 
 import java.util.List;
@@ -73,15 +72,7 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     private void renderRecipeData() {
-
-        ImageView recipeImageView = findViewById(R.id.recipeImage);
-        if (compositeRecipe.getValue().recipe.imagePath == null) {
-            recipeImageView.setImageResource(R.drawable.baseline_image_24);
-        } else {
-            recipeImageView.setImageBitmap(ImageUtils.loadFile(compositeRecipe.getValue().recipe.imagePath));
-        }
-
-
+        ImageUtils.setImageView(findViewById(R.id.recipeImage), compositeRecipe.getValue().recipe.imagePath);
         LinearLayout linearLayout = findViewById(R.id.ingredientsList);
         linearLayout.removeAllViews();
 
@@ -133,9 +124,7 @@ public class RecipeActivity extends AppCompatActivity {
         TextView commentView = inflatedLayout.findViewById(R.id.comment);
         commentView.setText(comment.text);
 
-        // hide keyboard
-        InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        manager.hideSoftInputFromWindow(commentView.getWindowToken(), 0);
+        Keyboard.hideKeyboard(this, commentView);
     }
 
     private void setOnCommentPostClick(View view, RelativeLayout commentLayout,

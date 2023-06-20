@@ -18,11 +18,11 @@
 
     <item
         android:id="@+id/nav_favourites"
-        android:title="Favourites" />
+        android:title="@string/my_favorites" />
 
     <item
         android:id="@+id/nav_my_recipes"
-        android:title="My Recipes" />
+        android:title="@string/my_recipes" />
 
     <item
         android:id="@+id/nav_logout"
