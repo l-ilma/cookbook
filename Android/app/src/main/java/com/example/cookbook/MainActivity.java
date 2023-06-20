@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
         ingredientRepository = new IngredientRepository(getApplicationContext());
         labelRepository = new LabelRepository(getApplicationContext());
 
-        // to make the Navigation drawer icon always appear on the action bar
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         doLoggedInUserLookup();
         setupNavigationViewItemSelectedListener();

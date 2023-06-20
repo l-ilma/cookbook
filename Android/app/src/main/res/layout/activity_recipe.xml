@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/recipeView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:layout_marginVertical="10dp"
     tools:context=".recipe.RecipeActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,6 +17,30 @@
             android:id="@+id/recipeImage"
             android:layout_width="match_parent"
             android:layout_height="400dp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Price: "
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/recipePrice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/teal_700"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
 
         <TextView
             android:layout_width="match_parent"
@@ -41,11 +66,11 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/instructions"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/instructions"
             android:layout_marginTop="10dp"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <TextView
             android:layout_width="match_parent"
@@ -56,20 +81,20 @@
             android:textStyle="bold" />
 
         <LinearLayout
+            android:id="@+id/commentSection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="10dp"
-            android:id="@+id/commentSection"
             android:orientation="vertical" />
 
         <Button
             android:id="@+id/addCommentButton"
             android:layout_width="match_parent"
-            android:visibility="gone"
             android:layout_height="wrap_content"
             android:onClick="onAddCommentClick"
-            android:text="@string/add_comment" />
+            android:text="@string/add_comment"
+            android:visibility="gone" />
 
-       <include layout="@layout/write_comment_layout" />
+        <include layout="@layout/write_comment_layout" />
     </LinearLayout>
 </ScrollView>

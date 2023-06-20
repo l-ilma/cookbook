@@ -85,6 +85,8 @@ public class RecipeActivity extends AppCompatActivity {
 
         TextView instructionsVew = findViewById(R.id.instructions);
         instructionsVew.setText(compositeRecipe.getValue().recipe.instructions);
+        TextView priceView = findViewById(R.id.recipePrice);
+        priceView.setText(compositeRecipe.getValue().recipe.price + "€");
     }
 
     private void renderComments() {
