@@ -6,6 +6,8 @@ import com.example.cookbook.AppDatabase;
 import com.example.cookbook.dao.IngredientsDao;
 import com.example.cookbook.entity.Ingredient;
 
+import java.util.List;
+
 public class IngredientsRepository {
     final IngredientsDao ingredientsDao;
 
@@ -23,5 +25,17 @@ public class IngredientsRepository {
 
     public void removeIngredient(long id) {
         ingredientsDao.delete(id);
+    }
+
+    public void removeAll(List<Ingredient> ingredients) {
+        ingredientsDao.removeAll(ingredients);
+    }
+
+    public void updateAll(List<Ingredient> ingredients) {
+        ingredientsDao.updateAll(ingredients);
+    }
+
+    public void insertAll(List<Ingredient> ingredients) {
+        ingredientsDao.insertAll(ingredients);
     }
 }

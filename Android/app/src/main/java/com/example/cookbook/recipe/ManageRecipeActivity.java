@@ -22,21 +22,19 @@ import androidx.lifecycle.LiveData;
 
 import com.example.cookbook.R;
 import com.example.cookbook.entity.Ingredient;
-import com.example.cookbook.entity.Recipe;
 import com.example.cookbook.models.CompositeRecipe;
 import com.example.cookbook.repository.IngredientsRepository;
 import com.example.cookbook.repository.RecipeRepository;
 import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.ImageUtils;
-import com.example.cookbook.utils.StateManager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public class ManageRecipeActivity extends AppCompatActivity {
-    LiveData<CompositeRecipe> existingCompositeRecipeLiveData;
-    CompositeRecipe newCompositeRecipe;
+    private final List<Ingredient> deletedIngredients = new ArrayList<>();
+    LiveData<CompositeRecipe> recipeLiveData;
     LinearLayout ingredientsLayoutHeader;
     LinearLayout ingredientListLayout;
     TextView nameLabelView;
@@ -50,8 +48,6 @@ public class ManageRecipeActivity extends AppCompatActivity {
     int nameViewId = View.generateViewId();
     int quantityViewId = View.generateViewId();
     int measureViewId = View.generateViewId();
-    boolean recipeAdded = false;
-
     ActivityResultLauncher<String> imageUploader = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
             uri -> {
@@ -62,6 +58,7 @@ public class ManageRecipeActivity extends AppCompatActivity {
                     Toast.makeText(this, "Image upload failed", Toast.LENGTH_SHORT).show();
                 }
             });
+    private List<Ingredient> renderedIngredients;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -75,15 +72,13 @@ public class ManageRecipeActivity extends AppCompatActivity {
 
         setupViews();
 
-        existingCompositeRecipeLiveData.observe(this, recipeData -> {
-            if (recipeData == null) {
-                if (!recipeAdded) {
-                    addNewRecipe();
-                }
-            } else {
-                ingredientListLayout.removeAllViews();
-                editExistingRecipe();
-            }
+        recipeLiveData.observe(this, recipeData -> {
+            if (recipeData == null) return;
+
+            removeAllViewsExceptFirst();
+            renderedIngredients = new ArrayList<>(recipeData.ingredients);
+            Collections.copy(renderedIngredients, recipeData.ingredients);
+            editRecipe();
         });
 
         findViewById(R.id.recipeImageEdit).setOnClickListener(view -> {
@@ -102,65 +97,62 @@ public class ManageRecipeActivity extends AppCompatActivity {
 
     public void onSaveClick(View view) {
         AsyncTask.execute(() -> {
-            long recipeId = existingCompositeRecipeLiveData.getValue() == null ?
-                    newCompositeRecipe.recipe.id : existingCompositeRecipeLiveData.getValue().recipe.id;
-            String imagePath = existingCompositeRecipeLiveData.getValue() == null ?
-                    newCompositeRecipe.recipe.imagePath : existingCompositeRecipeLiveData.getValue().recipe.imagePath;
+            CompositeRecipe compositeRecipe = recipeLiveData.getValue();
+
             recipeRepository.updateRecipe(
-                    recipeId,
+                    compositeRecipe.recipe.id,
                     recipeNameView.getText().toString(),
                     recipeInstructionsView.getText().toString(),
-                    loadedImagePath == null ? imagePath : loadedImagePath
+                    compositeRecipe.recipe.imagePath
             );
-            List<Ingredient> updatedIngredientsData = getUpdatedIngredients();
-            List<Ingredient> existingIngredients = existingCompositeRecipeLiveData.getValue() == null ?
-                    newCompositeRecipe.ingredients : existingCompositeRecipeLiveData.getValue().ingredients;
 
-            for (int i = 0; i < existingIngredients.size(); i++) {
-                Ingredient updatedIngredient = updatedIngredientsData.get(i);
-                Ingredient existingIngredient = existingIngredients.get(i);
-                if (!Objects.equals(existingIngredient.measure, updatedIngredient.measure) ||
-                        !Objects.equals(existingIngredient.name, updatedIngredient.name) ||
-                        existingIngredient.quantity != updatedIngredient.quantity) {
+            getUpdatedIngredients();
 
-                    ingredientsRepository.updateIngredientForRecipe(existingIngredient.id, recipeId,
-                            updatedIngredient.name, updatedIngredient.measure, updatedIngredient.quantity);
+            List<Ingredient> updatedIngredients = new ArrayList<>();
+            List<Ingredient> addedIngredients = new ArrayList<>();
+
+            renderedIngredients.forEach(i -> {
+                if (i.id > 0) {
+                    updatedIngredients.add(i);
+                } else {
+                    addedIngredients.add(i);
                 }
-            }
+            });
 
-            finish();
+            AsyncTask.execute(() -> {
+                ingredientsRepository.removeAll(deletedIngredients);
+                ingredientsRepository.updateAll(updatedIngredients);
+                ingredientsRepository.insertAll(addedIngredients);
+                finish();
+            });
         });
     }
 
     public void onAddIngredientClick(View v) {
         ingredientsLayoutHeader.setVisibility(View.VISIBLE);
-        CompositeRecipe compositeRecipe = existingCompositeRecipeLiveData.getValue() != null ?
-                existingCompositeRecipeLiveData.getValue() : newCompositeRecipe;
+        CompositeRecipe compositeRecipe = recipeLiveData.getValue();
         Ingredient newIngredient = new Ingredient(compositeRecipe.recipe.id, "", 0, "");
-        AsyncTask.execute(() -> {
-            newIngredient.id = ingredientsRepository.addIngredientToRecipe(newIngredient);
-            compositeRecipe.ingredients.add(newIngredient);
-        });
+        renderedIngredients.add(newIngredient);
         renderIngredient(newIngredient);
     }
 
     void loadCompositeRecipe() {
         long recipeId = getIntent().getLongExtra(Constants.RECIPE_EXTRA_KEY, -1);
-        existingCompositeRecipeLiveData = recipeRepository.findById(recipeId);
+        recipeLiveData = recipeRepository.findById(recipeId);
     }
 
-    void editExistingRecipe() {
-        CompositeRecipe existingCompositeRecipe = existingCompositeRecipeLiveData.getValue();
-        getSupportActionBar().setTitle(existingCompositeRecipe.recipe.name);
-        recipeNameView.setText(existingCompositeRecipe.recipe.name);
-        ImageUtils.setImageView(findViewById(R.id.recipeImage), existingCompositeRecipe.recipe.imagePath);
+    void editRecipe() {
+        CompositeRecipe compositeRecipe = recipeLiveData.getValue();
+        getSupportActionBar().setTitle(compositeRecipe.recipe.name);
+        recipeNameView.setText(compositeRecipe.recipe.name);
+        ImageUtils.setImageView(findViewById(R.id.recipeImage), compositeRecipe.recipe.imagePath);
 
-        for (Ingredient ingredient : existingCompositeRecipe.ingredients) {
+        for (Ingredient ingredient : renderedIngredients) {
             renderIngredient(ingredient);
         }
 
         EditText instructionsVew = findViewById(R.id.instructions);
-        instructionsVew.setText(existingCompositeRecipe.recipe.instructions);
+        instructionsVew.setText(compositeRecipe.recipe.instructions);
     }
 
     void renderIngredient(Ingredient ingredient) {
@@ -189,22 +181,16 @@ public class ManageRecipeActivity extends AppCompatActivity {
         ingredientListLayout.addView(linearLayoutIngredient);
     }
 
-    List<Ingredient> getUpdatedIngredients() {
-        List<Ingredient> ingredients = new ArrayList<>();
-        long recipeId = existingCompositeRecipeLiveData.getValue() == null ?
-                newCompositeRecipe.recipe.id : existingCompositeRecipeLiveData.getValue().recipe.id;
-        for (int i = 0; i < ingredientListLayout.getChildCount(); i++) {
+    void getUpdatedIngredients() {
+        for (int i = 1; i < ingredientListLayout.getChildCount(); i++) {
             View childView = ingredientListLayout.getChildAt(i);
-            if (childView.getId() == ingredientsLayoutHeader.getId()) {
-                continue;
-            }
             String name = ((EditText) childView.findViewById(nameViewId)).getText().toString();
             int quantity = Integer.parseInt(((EditText) childView.findViewById(quantityViewId)).getText().toString());
             String measure = ((EditText) childView.findViewById(measureViewId)).getText().toString();
-            ingredients.add(new Ingredient(recipeId, name, quantity, measure));
+            renderedIngredients.get(i - 1).measure = measure;
+            renderedIngredients.get(i - 1).quantity = quantity;
+            renderedIngredients.get(i - 1).name = name;
         }
-
-        return ingredients;
     }
 
     EditText createEditTextForIngredient(int id, String text, int textAlignment, ViewGroup.LayoutParams layoutParams) {
@@ -232,33 +218,17 @@ public class ManageRecipeActivity extends AppCompatActivity {
     }
 
     void onDeleteClicked(LinearLayout container, Ingredient ingredient) {
-        List<Ingredient> ingredients = existingCompositeRecipeLiveData.getValue() != null ?
-                existingCompositeRecipeLiveData.getValue().ingredients
-                : newCompositeRecipe.ingredients;
         container.removeAllViews();
         ((LinearLayout) container.getParent()).removeView(container);
 
-        AsyncTask.execute(() -> {
-            ingredientsRepository.removeIngredient(ingredient.id);
-            ingredients.remove(ingredient);
-        });
+        if (ingredient.id > 0) {
+            deletedIngredients.add(ingredient);
+            renderedIngredients.remove(ingredient);
+        }
 
-        if (ingredients.size() == 0) {
+        if (renderedIngredients.size() == 0) {
             ingredientsLayoutHeader.setVisibility(View.GONE);
         }
-    }
-
-    void addNewRecipe() {
-        getSupportActionBar().setTitle(R.string.new_recipe);
-        Recipe recipe = new Recipe(StateManager.getLoggedInUser().getValue().id,
-                getString(R.string.new_recipe), "", "", "", 0);
-        AsyncTask.execute(() -> {
-            long id = recipeRepository.add(recipe);
-            recipe.id = id;
-            recipeAdded = true;
-            newCompositeRecipe = new CompositeRecipe(recipe, new ArrayList<>(), new ArrayList<>());
-        });
-        recipeNameView.setText(R.string.new_recipe);
     }
 
     void setupViews() {
@@ -270,5 +240,10 @@ public class ManageRecipeActivity extends AppCompatActivity {
         nameLabelView = ingredientsLayoutHeader.findViewById(R.id.ingredientName);
         quantityLabelView = ingredientsLayoutHeader.findViewById(R.id.ingredientQuantity);
         measureLabelView = ingredientsLayoutHeader.findViewById(R.id.ingredientMeasure);
+    }
+
+    private void removeAllViewsExceptFirst() {
+        int count = ingredientListLayout.getChildCount();
+        ingredientListLayout.removeViews(1, count - 1);
     }
 }

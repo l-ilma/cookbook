@@ -28,6 +28,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.cookbook.databinding.ActivityMainBinding;
 import com.example.cookbook.entity.Label;
+import com.example.cookbook.entity.Recipe;
 import com.example.cookbook.entity.User;
 import com.example.cookbook.models.RecipeFilter;
 import com.example.cookbook.models.RecipeWithLikes;
@@ -61,6 +62,12 @@ public class MainActivity extends AppCompatActivity {
     private final MutableLiveData<NavRecipeFilter> navFilter = new MutableLiveData<>(NavRecipeFilter.NONE);
     private final MutableLiveData<Boolean> arePermissionsAllowed = new MutableLiveData<>(Utils.isExternalWriteEnabled());
     private final MutableLiveData<RecipeFilter> recipeFilter = new MutableLiveData<>(null);
+    private final List<Integer> labelIds = Arrays.asList(
+            R.id.label_1, R.id.label_2, R.id.label_3, R.id.label_4,
+            R.id.label_5, R.id.label_6, R.id.label_7, R.id.label_8,
+            R.id.label_9, R.id.label_10, R.id.label_11, R.id.label_12,
+            R.id.label_13, R.id.label_14, R.id.label_15, R.id.label_16
+    );
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
     private ActivityMainBinding mainBinding;
@@ -69,16 +76,9 @@ public class MainActivity extends AppCompatActivity {
     private UserRepository userRepository;
     private IngredientRepository ingredientRepository;
     private LabelRepository labelRepository;
-
     private NavigationView navigationView;
     private LayoutInflater layoutInflater;
     private LinearLayout mainLinearLayout;
-    private final List<Integer> labelIds = Arrays.asList(
-            R.id.label_1, R.id.label_2, R.id.label_3, R.id.label_4,
-            R.id.label_5, R.id.label_6, R.id.label_7, R.id.label_8,
-            R.id.label_9, R.id.label_10, R.id.label_11, R.id.label_12,
-            R.id.label_13, R.id.label_14, R.id.label_15, R.id.label_16
-    );
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,8 +150,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addNewRecipe(View view) {
-        Intent intent = new Intent(this, ManageRecipeActivity.class);
-        startActivity(intent);
+        AsyncTask.execute(() -> {
+            long recipeId = recipeRepository.add(
+                    new Recipe(
+                            StateManager.getLoggedInUser().getValue().id,
+                            "New Recipe",
+                            "Please provide your instructions here",
+                            null,
+                            "",
+                            0
+                    )
+            );
+            Intent intent = new Intent(this, ManageRecipeActivity.class);
+            intent.putExtra(Constants.RECIPE_EXTRA_KEY, recipeId);
+            startActivity(intent);
+        });
     }
 
     void doLoggedInUserLookup() {
