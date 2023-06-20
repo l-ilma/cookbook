@@ -32,6 +32,9 @@ public interface RecipeDao {
     @Insert
     long add(Recipe recipe);
 
-    @Query("UPDATE Recipe SET name = :name, instructions = :instructions, imagePath = :imagePath WHERE id = :id")
-    void update(long id, String name, String instructions, String imagePath);
+    @Query("UPDATE Recipe SET name = :name, instructions = :instructions, imagePath = :imagePath, labels = :labels, price = :price WHERE id = :id")
+    void update(long id, String name, String instructions, String imagePath, String labels, double price);
+
+    @Query("DELETE FROM Recipe WHERE id = :id")
+    void deleteById(long id);
 }

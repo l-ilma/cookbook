@@ -8,6 +8,7 @@ import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSpinner implements
         DialogInterface.OnMultiChoiceClickListener, DialogInterface.OnCancelListener {
@@ -36,7 +37,69 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        // refresh text on spinner
+        refreshText();
+    }
+
+    @Override
+    public boolean performClick() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setMultiChoiceItems(
+                items.toArray(new CharSequence[items.size()]), selected, this);
+        builder.setPositiveButton(android.R.string.ok,
+                (dialog, which) -> dialog.cancel());
+        builder.setOnCancelListener(this);
+        builder.show();
+        return true;
+    }
+
+    public void setItems(List<String> items, String allText,
+                         MultiSpinnerListener listener) {
+        this.items = items;
+        this.defaultText = allText;
+        this.listener = listener;
+
+        // all selected by default
+        selected = new boolean[items.size()];
+        for (int i = 0; i < selected.length; i++)
+            selected[i] = false;
+
+        // all text on the spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, new String[]{allText});
+
+        setAdapter(adapter);
+        refreshText();
+    }
+
+    public void setItemsWithMap(List<ItemWithCheckedOptions> items, String allText, MultiSpinnerListener listener) {
+        this.items = items.stream().map(i -> i.name).collect(Collectors.toList());
+        this.defaultText = allText;
+        this.listener = listener;
+
+        selected = new boolean[items.size()];
+        for (int i = 0; i < items.size(); i++)
+            selected[i] = items.get(i).checked;
+
+        // all text on the spinner
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
+                android.R.layout.simple_spinner_item, new String[]{allText});
+
+        setAdapter(adapter);
+        refreshText();
+    }
+
+    public List<String> getSelected() {
+        List<String> selectedItems = new ArrayList<>();
+        for (int i = 0; i < selected.length; i++) {
+            if (selected[i]) {
+                selectedItems.add(items.get(i));
+            }
+        }
+
+        return selectedItems;
+    }
+
+    private void refreshText() {
         StringBuffer spinnerBuffer = new StringBuffer();
         boolean someSelected = false;
         for (int i = 0; i < items.size(); i++) {
@@ -61,48 +124,17 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         listener.onItemsSelected(selected);
     }
 
-    @Override
-    public boolean performClick() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setMultiChoiceItems(
-                items.toArray(new CharSequence[items.size()]), selected, this);
-        builder.setPositiveButton(android.R.string.ok,
-                (dialog, which) -> dialog.cancel());
-        builder.setOnCancelListener(this);
-        builder.show();
-        return true;
-    }
-
-    public void setItems(List<String> items, String allText,
-                         MultiSpinnerListener listener) {
-        this.items = items;
-        this.defaultText = allText;
-        this.listener = listener;
-
-        // all selected by default
-        selected = new boolean[items.size()];
-        for (int i = 0; i < selected.length; i++)
-            selected[i] = true;
-
-        // all text on the spinner
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_spinner_item, new String[]{allText});
-
-        setAdapter(adapter);
-    }
-
-    public List<String> getSelected() {
-        List<String> selectedItems = new ArrayList<>();
-        for (int i = 0; i < selected.length; i++) {
-            if (selected[i]) {
-                selectedItems.add(items.get(i));
-            }
-        }
-
-        return selectedItems;
-    }
-
     public interface MultiSpinnerListener {
         void onItemsSelected(boolean[] selected);
+    }
+
+    public static class ItemWithCheckedOptions {
+        public String name;
+        public Boolean checked;
+
+        public ItemWithCheckedOptions(String name, Boolean checked) {
+            this.name = name;
+            this.checked = checked;
+        }
     }
 }

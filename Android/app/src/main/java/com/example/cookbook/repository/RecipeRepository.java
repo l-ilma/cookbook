@@ -27,13 +27,19 @@ public class RecipeRepository {
         return recipeDao.add(recipe);
     }
 
-    public void updateRecipe(long id, String name, String instructions, String imagePath) {
-        recipeDao.update(id, name, instructions, imagePath);
+    public void updateRecipe(long id, String name, String instructions, String imagePath, String labels, double price) {
+        recipeDao.update(id, name, instructions, imagePath, labels, price);
     }
 
     public LiveData<List<RecipeWithLikes>> getAllRecipes() {
         return recipeDao.getAllRecipes();
     }
 
-    public List<Double> getAllPrices() { return recipeDao.getAllPrices(); }
+    public List<Double> getAllPrices() {
+        return recipeDao.getAllPrices();
+    }
+
+    public void deleteById(long id) {
+        recipeDao.deleteById(id);
+    }
 }

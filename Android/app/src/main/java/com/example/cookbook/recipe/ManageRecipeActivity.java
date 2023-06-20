@@ -19,21 +19,29 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.cookbook.R;
 import com.example.cookbook.entity.Ingredient;
+import com.example.cookbook.entity.Label;
 import com.example.cookbook.models.CompositeRecipe;
 import com.example.cookbook.repository.IngredientsRepository;
+import com.example.cookbook.repository.LabelRepository;
 import com.example.cookbook.repository.RecipeRepository;
+import com.example.cookbook.ui.custom.MultiSelectionSpinner;
 import com.example.cookbook.utils.Constants;
 import com.example.cookbook.utils.ImageUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class ManageRecipeActivity extends AppCompatActivity {
     private final List<Ingredient> deletedIngredients = new ArrayList<>();
+    private final LiveData<List<Label>> allLabels = new MutableLiveData<>();
     LiveData<CompositeRecipe> recipeLiveData;
     LinearLayout ingredientsLayoutHeader;
     LinearLayout ingredientListLayout;
@@ -41,13 +49,18 @@ public class ManageRecipeActivity extends AppCompatActivity {
     TextView quantityLabelView;
     TextView measureLabelView;
     EditText recipeNameView;
+    EditText recipePriceView;
     EditText recipeInstructionsView;
+    MultiSelectionSpinner multiSelectionSpinnerView;
     RecipeRepository recipeRepository;
+    LabelRepository labelRepository;
     IngredientsRepository ingredientsRepository;
     String loadedImagePath;
     int nameViewId = View.generateViewId();
     int quantityViewId = View.generateViewId();
     int measureViewId = View.generateViewId();
+
+    MutableLiveData<List<MultiSelectionSpinner.ItemWithCheckedOptions>> initialSpinnerItems = new MutableLiveData<>();
     ActivityResultLauncher<String> imageUploader = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
             uri -> {
@@ -66,7 +79,7 @@ public class ManageRecipeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_manage_recipe);
         recipeRepository = new RecipeRepository(getApplicationContext());
         ingredientsRepository = new IngredientsRepository(getApplicationContext());
-
+        labelRepository = new LabelRepository(getApplicationContext());
         loadCompositeRecipe();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true); // back button
 
@@ -84,6 +97,15 @@ public class ManageRecipeActivity extends AppCompatActivity {
         findViewById(R.id.recipeImageEdit).setOnClickListener(view -> {
             imageUploader.launch("image/*");
         });
+
+        initialSpinnerItems.observe(this, items -> {
+            if (items == null) return;
+
+            MultiSelectionSpinner.MultiSpinnerListener multiSpinnerListener = selected -> {
+                System.out.println(selected);
+            };
+            multiSelectionSpinnerView.setItemsWithMap(items, "None selected", multiSpinnerListener);
+        });
     }
 
     @Override
@@ -98,12 +120,20 @@ public class ManageRecipeActivity extends AppCompatActivity {
     public void onSaveClick(View view) {
         AsyncTask.execute(() -> {
             CompositeRecipe compositeRecipe = recipeLiveData.getValue();
+            StringJoiner labels = new StringJoiner(",");
+
+            for (String name : multiSelectionSpinnerView.getSelected()) {
+                labels.add(name);
+            }
+
 
             recipeRepository.updateRecipe(
                     compositeRecipe.recipe.id,
                     recipeNameView.getText().toString(),
                     recipeInstructionsView.getText().toString(),
-                    compositeRecipe.recipe.imagePath
+                    loadedImagePath != null ? loadedImagePath : compositeRecipe.recipe.imagePath,
+                    labels.toString(),
+                    Double.parseDouble(recipePriceView.getText().toString())
             );
 
             getUpdatedIngredients();
@@ -128,6 +158,13 @@ public class ManageRecipeActivity extends AppCompatActivity {
         });
     }
 
+    public void onDeleteClick(View view) {
+        AsyncTask.execute(() -> {
+            recipeRepository.deleteById(recipeLiveData.getValue().recipe.id);
+            finish();
+        });
+    }
+
     public void onAddIngredientClick(View v) {
         ingredientsLayoutHeader.setVisibility(View.VISIBLE);
         CompositeRecipe compositeRecipe = recipeLiveData.getValue();
@@ -145,6 +182,14 @@ public class ManageRecipeActivity extends AppCompatActivity {
         CompositeRecipe compositeRecipe = recipeLiveData.getValue();
         getSupportActionBar().setTitle(compositeRecipe.recipe.name);
         recipeNameView.setText(compositeRecipe.recipe.name);
+        recipePriceView.setText(String.valueOf(compositeRecipe.recipe.price));
+
+        AsyncTask.execute(() -> {
+            final List<Label> labels = labelRepository.getAllLabels();
+            List<String> acquiredLabels = Arrays.stream(compositeRecipe.recipe.labels.split(",")).collect(Collectors.toList());
+            initialSpinnerItems.postValue(labels.stream().map(l -> new MultiSelectionSpinner.ItemWithCheckedOptions(l.name, acquiredLabels.contains(l.name))).collect(Collectors.toList()));
+        });
+
         ImageUtils.setImageView(findViewById(R.id.recipeImage), compositeRecipe.recipe.imagePath);
 
         for (Ingredient ingredient : renderedIngredients) {
@@ -234,7 +279,9 @@ public class ManageRecipeActivity extends AppCompatActivity {
     void setupViews() {
         ingredientListLayout = findViewById(R.id.ingredientList);
         recipeNameView = findViewById(R.id.recipeName);
+        recipePriceView = findViewById(R.id.price);
         recipeInstructionsView = findViewById(R.id.instructions);
+        multiSelectionSpinnerView = findViewById(R.id.labels_dropdown);
 
         ingredientsLayoutHeader = ingredientListLayout.findViewById(R.id.ingredientsHeader);
         nameLabelView = ingredientsLayoutHeader.findViewById(R.id.ingredientName);

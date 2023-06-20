@@ -16,13 +16,15 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/image_container"
             android:layout_width="match_parent"
-            android:layout_height="400dp">
+            android:layout_height="300dp">
+
 
             <ImageView
                 android:id="@+id/recipeImage"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
+                android:layout_height="match_parent"
+                tools:layout_editor_absoluteX="-1dp"
+                tools:layout_editor_absoluteY="20dp" />
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -46,30 +48,84 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:weightSum="2">
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/name_colon"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+
             <EditText
                 android:id="@+id/recipeName"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:drawableLeft="@drawable/baseline_fastfood_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="#64748b"
                 android:inputType="text"
+                android:paddingBottom="12dp"
                 android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Price:"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+
+            <EditText
+                android:id="@+id/price"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/baseline_euro_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="#64748b"
+                android:inputType="numberDecimal"
+                android:paddingBottom="12dp"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Labels:"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <com.example.cookbook.ui.custom.MultiSelectionSpinner
+                android:id="@+id/labels_dropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/teal_700"
+                android:paddingBottom="12dp" />
+
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="16dp"
             android:text="@string/ingredients"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -112,12 +168,35 @@
             android:padding="10dp"
             android:textSize="16sp" />
 
-        <Button
-            android:id="@+id/saveBtn"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onSaveClick"
-            android:text="@string/save_changes" />
+            android:layout_marginTop="30dp"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/deleteBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/red"
+                android:gravity="center"
+                android:onClick="onDeleteClick"
+                android:text="@string/delete_changes" />
+
+            <Button
+                android:id="@+id/saveBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:onClick="onSaveClick"
+                android:text="@string/save_changes" />
+        </LinearLayout>
+
 
     </LinearLayout>
 </ScrollView>
