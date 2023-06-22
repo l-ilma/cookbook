@@ -180,7 +180,6 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(R.id.nav_logout).setVisible(user != null);
         menu.findItem(R.id.nav_favourites).setVisible(user != null);
         menu.findItem(R.id.nav_my_recipes).setVisible(user != null);
-        menu.findItem(R.id.nav_account).setVisible(user != null);
     }
 
     private void setupNavigationViewItemSelectedListener() {
