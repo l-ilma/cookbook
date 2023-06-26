@@ -388,7 +388,7 @@ public class MainActivity extends AppCompatActivity {
         ListView dishList = findViewById(R.id.dishList);
         LinearLayout addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
         dishList.setVisibility(View.GONE);
-        if (addRecipeBtnView != null) {
+        if (addRecipeBtnView != null && navFilter.getValue().equals(NavRecipeFilter.MY)) {
             addRecipeBtnView.setVisibility(View.GONE);
         }
 
@@ -472,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
         ImageButton exitButton = findViewById(R.id.exit_filter);
         exitButton.setVisibility(View.GONE);
         LinearLayout addRecipeBtnView = findViewById(R.id.addRecipeButtonLayout);
-        if (addRecipeBtnView != null) {
+        if (addRecipeBtnView != null && navFilter.getValue().equals(NavRecipeFilter.MY)) {
             addRecipeBtnView.setVisibility(View.VISIBLE);
         }
 

@@ -61,14 +61,13 @@ public class MultiSelectionSpinner extends androidx.appcompat.widget.AppCompatSp
         // all selected by default
         selected = new boolean[items.size()];
         for (int i = 0; i < selected.length; i++)
-            selected[i] = false;
+            selected[i] = true;
 
         // all text on the spinner
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(),
                 android.R.layout.simple_spinner_item, new String[]{allText});
 
         setAdapter(adapter);
-        refreshText();
     }
 
     public void setItemsWithMap(List<ItemWithCheckedOptions> items, String allText, MultiSpinnerListener listener) {
